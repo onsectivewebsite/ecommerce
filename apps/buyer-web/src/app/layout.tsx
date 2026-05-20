@@ -12,6 +12,8 @@ export const metadata: Metadata = {
     'Premium goods from independent sellers worldwide. Designed for trust, built for scale.',
 };
 
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">

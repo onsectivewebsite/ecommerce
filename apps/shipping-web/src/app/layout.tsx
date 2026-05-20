@@ -5,6 +5,8 @@ import { Shell } from '@/components/Shell';
 
 export const metadata: Metadata = { title: 'Onsective — Shipping partner' };
 
+export const dynamic = 'force-dynamic';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
