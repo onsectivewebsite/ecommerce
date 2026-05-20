@@ -11,13 +11,16 @@
  * title or description field, which makes `dangerouslySetInnerHTML`
  * safe here even if a stored field someday contains such characters.
  */
+const LS = new RegExp(String.fromCharCode(0x2028), 'g');
+const PS = new RegExp(String.fromCharCode(0x2029), 'g');
+
 function safeJson(input: unknown): string {
   return JSON.stringify(input)
     .replace(/</g, '\\u003c')
     .replace(/>/g, '\\u003e')
     .replace(/&/g, '\\u0026')
-    .replace(/ /g, '\\u2028')
-    .replace(/ /g, '\\u2029');
+    .replace(LS, '\\u2028')
+    .replace(PS, '\\u2029');
 }
 
 export function JsonLd({ data }: { data: unknown }) {

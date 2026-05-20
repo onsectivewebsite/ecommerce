@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { WalletModule } from '../wallet/wallet.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 import { TradeInService } from './trade-in.service';
 import {
   TradeInAdminController,
@@ -9,7 +10,7 @@ import {
 } from './trade-in.controller';
 
 @Module({
-  imports: [WalletModule],
+  imports: [WalletModule, NotificationsModule],
   controllers: [
     TradeInPublicController,
     TradeInBuyerController,
