@@ -4,6 +4,7 @@ import type { ProductDetailDto, ProductCondition } from '@onsective/shared-types
 import type { RefurbUnitRow } from '@onsective/api-client';
 import { ProductBuyBox } from '@/components/ProductBuyBox';
 import { RecommendationsRow } from '@/components/RecommendationsRow';
+import { ProductQna } from '@/components/ProductQna';
 import { TrustBadge } from '@/components/TrustBadge';
 import { RefurbUnitPicker } from '@/components/RefurbUnitPicker';
 import { JsonLd } from '@/components/JsonLd';
@@ -145,6 +146,8 @@ export default async function ProductPage({ params }: { params: { slug: string }
           <p className="text-ink-400 text-sm mt-1">Ships in 2-3 business days.</p>
         </div>
       </div>
+
+      <ProductQna productId={p.id} />
 
       <RecommendationsRow productId={p.id} type="fbt" />
       <RecommendationsRow productId={p.id} type="similar" />

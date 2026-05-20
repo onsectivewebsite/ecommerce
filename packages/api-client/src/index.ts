@@ -19,6 +19,7 @@ export * from './endpoints/recommendations';
 export * from './endpoints/experiments';
 export * from './endpoints/returns';
 export * from './endpoints/reviews';
+export * from './endpoints/qna';
 export * from './endpoints/messaging';
 export * from './endpoints/disputes';
 export * from './endpoints/support';

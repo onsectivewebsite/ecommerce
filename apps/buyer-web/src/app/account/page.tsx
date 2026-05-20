@@ -18,6 +18,7 @@ export default function AccountPage() {
           <Link href="/account/inbox" className="ons-btn-secondary">Inbox</Link>
           <Link href="/orders" className="ons-btn-secondary">Orders</Link>
           <Link href="/account/returns" className="ons-btn-secondary">Returns</Link>
+          <Link href="/account/qna" className="ons-btn-secondary">My Q&amp;A</Link>
           <Link href="/account/wishlist" className="ons-btn-secondary">Wishlist</Link>
           <Link href="/account/wallet" className="ons-btn-secondary">Wallet</Link>
           <Link href="/account/payment-methods" className="ons-btn-secondary">Payment methods</Link>

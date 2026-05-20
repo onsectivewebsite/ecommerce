@@ -248,6 +248,21 @@ enum ReviewStatus {
   DELETED_BY_BUYER
 }
 
+/// Phase 36: shared lifecycle for ProductQuestion and ProductAnswer.
+enum QnaStatus {
+  VISIBLE
+  HIDDEN_BY_ADMIN
+  DELETED_BY_AUTHOR
+}
+
+/// Phase 36: snapshot of an answer author's standing.
+enum QnaAuthorRole {
+  BUYER
+  VERIFIED_OWNER
+  SELLER
+  ADMIN
+}
+
 enum MessageSenderKind {
   BUYER
   SELLER
@@ -300,6 +315,9 @@ model User {
   pushDevices   PushDevice[]
   returns       Return[]          @relation("ReturnBuyer")
   reviews       Review[]          @relation("ReviewBuyer")
+  questionsAsked ProductQuestion[] @relation("QuestionAsker")
+  answersGiven   ProductAnswer[]   @relation("AnswerAuthor")
+  answerVotes    AnswerHelpfulVote[]
   threads       MessageThread[]   @relation("ThreadBuyer")
   wishlists     Wishlist[]
   wallet        WalletAccount?
@@ -513,6 +531,7 @@ model Product {
   coViewA        ProductCoView[]    @relation("ProductCoViewA")
   coViewB        ProductCoView[]    @relation("ProductCoViewB")
   reviews        Review[]
+  questions      ProductQuestion[]
   wishlistItems  WishlistItem[]
   promotionScopes PromotionProductScope[]
   events         ProductEvent[]
@@ -1340,6 +1359,64 @@ model Review {
 
   @@index([productId, status, createdAt])
   @@index([buyerUserId])
+}
+
+/// Phase 36: a shopper question on a product page.
+model ProductQuestion {
+  id            String    @id
+  productId     String
+  askedByUserId String
+  body          String
+  status        QnaStatus @default(VISIBLE)
+  /// Denormalized count of VISIBLE answers.
+  answerCount   Int       @default(0)
+  hiddenReason  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  product Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  askedBy User            @relation("QuestionAsker", fields: [askedByUserId], references: [id], onDelete: Cascade)
+  answers ProductAnswer[]
+
+  @@index([productId, status, createdAt])
+  @@index([askedByUserId])
+}
+
+/// Phase 36: an answer to a ProductQuestion.
+model ProductAnswer {
+  id               String        @id
+  questionId       String
+  answeredByUserId String
+  body             String
+  /// Snapshot of the author's standing at answer time.
+  authorRole       QnaAuthorRole
+  status           QnaStatus     @default(VISIBLE)
+  /// Denormalized count of AnswerHelpfulVote rows.
+  helpfulCount     Int           @default(0)
+  hiddenReason     String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  question   ProductQuestion     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answeredBy User                @relation("AnswerAuthor", fields: [answeredByUserId], references: [id], onDelete: Cascade)
+  votes      AnswerHelpfulVote[]
+
+  @@index([questionId, status])
+  @@index([answeredByUserId])
+}
+
+/// Phase 36: one helpful mark per user per answer.
+model AnswerHelpfulVote {
+  id        String   @id
+  answerId  String
+  userId    String
+  createdAt DateTime @default(now())
+
+  answer ProductAnswer @relation(fields: [answerId], references: [id], onDelete: Cascade)
+  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([answerId, userId])
+  @@index([userId])
 }
 
 model MessageThread {
@@ -2965,6 +3042,7 @@ enum NotificationKind {
   ORDER_DELIVERED
   MESSAGE_NEW
   REVIEW_POSTED
+  QUESTION_ANSWERED
   SECURITY_SIGN_IN
   GENERIC
 }

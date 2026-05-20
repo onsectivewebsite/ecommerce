@@ -357,3 +357,16 @@ Legend: ⚪ planned · 🟡 in progress · 🟢 done
 - [x] Endpoints: /gift-cards/{purchase,check,redeem,mine} + /admin/gift-cards{,/issue,/:id/void,/deliver-due}; webhook giftcard branch; GiftCardsApi + AdminGiftCardsApi — 2026-05-20
 - [x] Frontend: buyer-web /gift-cards purchase (Stripe Elements) + /account/gift-cards redeem; admin-web /gift-cards issue/void/search + nav; TopBar link — 2026-05-20
 - [x] `doc/phase-35-debug.md` — 2026-05-20
+
+## Deployment — Hostinger VPS ✅
+- [x] Provisioned Hostinger VPS (Ubuntu 24.04, CloudPanel), code via GitHub, env + secrets, DB migrate + seed — 2026-05-20
+- [x] 5 pm2 services (API via @swc-node/register, 4 Next.js apps), CloudPanel reverse-proxy + Let's Encrypt TLS on itsnottechy.cloud + 4 subdomains — 2026-05-20
+- [x] SMTP email provider (nodemailer, Hostinger), live smoke test (login, catalog, email) — 2026-05-20
+
+## Phase 36 — Product Q&A ✅
+- [x] `doc/phase-36.md` spec — 2026-05-20
+- [x] Schema (ProductQuestion, ProductAnswer, AnswerHelpfulVote + QnaStatus/QnaAuthorRole enums + QUESTION_ANSWERED NotificationKind) — 2026-05-20
+- [x] QnaService (ask, answer w/ author-role snapshot, toggle-helpful, author soft-delete, seller/admin lists, moderation) + rate limits + answer→asker notification — 2026-05-20
+- [x] Endpoints: /qna/* (public + buyer), /seller/qna, /admin/qna; QnaApi in api-client — 2026-05-20
+- [x] Frontend: buyer-web ProductQna on PDP + /account/qna; seller-web /qna; admin-web /qna; nav + account tile — 2026-05-20
+- [x] `doc/phase-36-debug.md` — 2026-05-20
