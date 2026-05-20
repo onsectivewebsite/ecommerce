@@ -1,19 +1,39 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "baseUrl": ".",
     "jsx": "preserve",
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "noEmit": true,
     "incremental": true,
-    "plugins": [{ "name": "next" }],
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@onsective/shared-types": ["../../packages/shared-types/src/index.ts"],
-      "@onsective/api-client": ["../../packages/api-client/src/index.ts"],
-      "@onsective/ui": ["../../packages/ui/src/index.ts"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@onsective/shared-types": [
+        "../../packages/shared-types/src/index.ts"
+      ],
+      "@onsective/api-client": [
+        "../../packages/api-client/src/index.ts"
+      ],
+      "@onsective/ui": [
+        "../../packages/ui/src/index.ts"
+      ]
     }
   },
-  "include": ["next-env.d.ts", "src/**/*.ts", "src/**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
