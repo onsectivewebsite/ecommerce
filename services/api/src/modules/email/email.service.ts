@@ -4,6 +4,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { newId } from '../../common/id';
 import { DevEmailProvider } from './dev.provider';
 import { ResendEmailProvider } from './resend.provider';
+import { SmtpEmailProvider } from './smtp.provider';
 import { renderTemplate, templateKind } from './templates';
 import type { EmailMessage, EmailProvider } from './email.types';
 import { ConsentService } from '../privacy/consent.service';
@@ -150,6 +151,10 @@ export class EmailService {
 
 export const emailProvidersFactory = {
   provide: EMAIL_PROVIDERS,
-  inject: [DevEmailProvider, ResendEmailProvider],
-  useFactory: (dev: DevEmailProvider, resend: ResendEmailProvider): EmailProvider[] => [dev, resend],
+  inject: [DevEmailProvider, ResendEmailProvider, SmtpEmailProvider],
+  useFactory: (
+    dev: DevEmailProvider,
+    resend: ResendEmailProvider,
+    smtp: SmtpEmailProvider,
+  ): EmailProvider[] => [dev, resend, smtp],
 };

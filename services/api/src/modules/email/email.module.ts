@@ -4,6 +4,7 @@ import { EmailListener } from './email.listener';
 import { EmailService, emailProvidersFactory } from './email.service';
 import { NotificationPreferencesController } from './email.controller';
 import { ResendEmailProvider } from './resend.provider';
+import { SmtpEmailProvider } from './smtp.provider';
 
 @Global()
 @Module({
@@ -11,6 +12,7 @@ import { ResendEmailProvider } from './resend.provider';
   providers: [
     DevEmailProvider,
     ResendEmailProvider,
+    SmtpEmailProvider,
     emailProvidersFactory,
     EmailService,
     EmailListener,
