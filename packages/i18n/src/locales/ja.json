@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "home": "ホーム",
+    "search": "検索",
+    "cart": "カート",
+    "account": "アカウント",
+    "orders": "注文履歴",
+    "downloads": "ダウンロード",
+    "signIn": "サインイン",
+    "signOut": "サインアウト"
+  },
+  "home": {
+    "heroTagline": "プレミアムなグローバルマーケットプレイス",
+    "browseCategories": "カテゴリを見る",
+    "shopAll": "すべての商品"
+  },
+  "pdp": {
+    "soldBy": "販売元",
+    "inStock": "在庫: {qty}",
+    "addToCart": "カートに追加",
+    "buyNow": "今すぐ購入",
+    "qty": "数量",
+    "ageGateTitle": "年齢確認が必要です",
+    "ageGateBody": "{title} は{minAge}歳以上のお客様のみが購入できます。生年月日を入力してください。",
+    "ageGateButton": "私は{minAge}歳以上です",
+    "ageGateLeave": "ページを離れる",
+    "ageGateDob": "生年月日",
+    "restrictedRegion": "一部地域で制限あり",
+    "digitalDelivery": "デジタル配信",
+    "ageOnly": "{minAge}歳以上限定"
+  },
+  "cart": {
+    "title": "カート",
+    "empty": "カートは空です。",
+    "subtotal": "小計",
+    "checkout": "ご注文手続き"
+  },
+  "checkout": {
+    "title": "ご注文手続き",
+    "shipping": "配送",
+    "billing": "請求先",
+    "payment": "支払い",
+    "placeOrder": "注文を確定",
+    "tax": "消費税",
+    "total": "合計",
+    "summary": "注文内容",
+    "convertedFrom": "表示価格 {amount}"
+  },
+  "downloads": {
+    "title": "デジタルダウンロード",
+    "intro": "ご購入いただいたデジタル商品のライセンスキーとダウンロード。",
+    "noneYet": "デジタル配信はまだありません。",
+    "revealKey": "キーを表示",
+    "download": "ダウンロード",
+    "expired": "期限切れ",
+    "remaining": "残り {remaining}/{limit} 回のダウンロード",
+    "pendingSeller": "販売者の対応待ち"
+  },
+  "errors": {
+    "checkoutFailed": "ご注文に失敗しました",
+    "ageRequired": "先に年齢を確認してください。",
+    "regionRestricted": "この商品はお客様の地域に発送できません。",
+    "outOfStock": "在庫が不足しています。",
+    "noLicenseKeys": "この商品のライセンスキーは一時的にご利用いただけません。"
+  },
+  "currency": {
+    "label": "通貨",
+    "convertedHint": "概算 — {listing} から換算"
+  },
+  "locale": {
+    "label": "言語"
+  }
+}

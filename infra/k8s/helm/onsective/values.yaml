@@ -1,0 +1,87 @@
+# Defaults — override per-environment with `values-<env>.yaml`.
+
+global:
+  imageRegistry: ghcr.io/onsective
+  imagePullPolicy: IfNotPresent
+  imageTag: "phase-6"
+  # External-Secrets-Operator secret references. The chart only carries the *name*;
+  # the actual ExternalSecret manifest lives in the cluster-scoped infra repo.
+  envFromSecret: onsective-app-env
+
+api:
+  replicas: 3
+  image: api
+  port: 4000
+  resources:
+    requests: { cpu: 500m, memory: 512Mi }
+    limits:   { cpu: 2,    memory: 1Gi }
+  hpa:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+  pdb:
+    minAvailable: 1
+  livenessPath: /health
+  readinessPath: /health
+  env:
+    NODE_ENV: production
+    PAYOUTS_AUTO_RUN: "0"   # production uses BullMQ; the in-process scheduler is disabled.
+    FX_AUTO_REFRESH: "1"
+
+buyer:
+  replicas: 4
+  image: buyer-web
+  port: 3000
+  hostname: shop.onsective.com
+  resources:
+    requests: { cpu: 250m, memory: 256Mi }
+    limits:   { cpu: 1,    memory: 512Mi }
+  hpa:
+    enabled: true
+    minReplicas: 4
+    maxReplicas: 20
+    targetCPUUtilizationPercentage: 60
+  pdb:
+    minAvailable: 1
+
+seller:
+  replicas: 2
+  image: seller-web
+  port: 3001
+  hostname: sellers.onsective.com
+  resources:
+    requests: { cpu: 200m, memory: 256Mi }
+    limits:   { cpu: 1,    memory: 512Mi }
+  hpa: { enabled: true, minReplicas: 2, maxReplicas: 6, targetCPUUtilizationPercentage: 70 }
+  pdb: { minAvailable: 1 }
+
+admin:
+  replicas: 2
+  image: admin-web
+  port: 3002
+  hostname: ops.onsective.com
+  resources:
+    requests: { cpu: 200m, memory: 256Mi }
+    limits:   { cpu: 1,    memory: 512Mi }
+  hpa: { enabled: true, minReplicas: 2, maxReplicas: 6, targetCPUUtilizationPercentage: 70 }
+  pdb: { minAvailable: 1 }
+
+shipping:
+  replicas: 2
+  image: shipping-web
+  port: 3003
+  hostname: ship.onsective.com
+  resources:
+    requests: { cpu: 200m, memory: 256Mi }
+    limits:   { cpu: 1,    memory: 512Mi }
+  hpa: { enabled: true, minReplicas: 2, maxReplicas: 6, targetCPUUtilizationPercentage: 70 }
+  pdb: { minAvailable: 1 }
+
+ingress:
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  apiHostname: api.onsective.com
+  tlsSecretSuffix: -tls

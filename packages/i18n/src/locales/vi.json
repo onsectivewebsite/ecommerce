@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "home": "Trang chủ",
+    "search": "Tìm kiếm",
+    "cart": "Giỏ hàng",
+    "account": "Tài khoản",
+    "orders": "Đơn hàng",
+    "downloads": "Tải xuống",
+    "signIn": "Đăng nhập",
+    "signOut": "Đăng xuất"
+  },
+  "home": {
+    "heroTagline": "Sàn thương mại toàn cầu cao cấp",
+    "browseCategories": "Khám phá danh mục",
+    "shopAll": "Tất cả sản phẩm"
+  },
+  "pdp": {
+    "soldBy": "Người bán",
+    "inStock": "Còn hàng: {qty}",
+    "addToCart": "Thêm vào giỏ",
+    "buyNow": "Mua ngay",
+    "qty": "SL",
+    "ageGateTitle": "Yêu cầu xác minh độ tuổi",
+    "ageGateBody": "{title} chỉ dành cho người mua từ {minAge} tuổi trở lên. Vui lòng nhập ngày sinh để tiếp tục.",
+    "ageGateButton": "Tôi từ {minAge} tuổi trở lên",
+    "ageGateLeave": "Rời khỏi trang",
+    "ageGateDob": "Ngày sinh",
+    "restrictedRegion": "Hạn chế ở một số khu vực",
+    "digitalDelivery": "Giao hàng kỹ thuật số",
+    "ageOnly": "Chỉ {minAge}+"
+  },
+  "cart": {
+    "title": "Giỏ hàng",
+    "empty": "Giỏ hàng trống.",
+    "subtotal": "Tạm tính",
+    "checkout": "Thanh toán"
+  },
+  "checkout": {
+    "title": "Thanh toán",
+    "shipping": "Vận chuyển",
+    "billing": "Hóa đơn",
+    "payment": "Thanh toán",
+    "placeOrder": "Đặt hàng",
+    "tax": "Thuế",
+    "total": "Tổng",
+    "summary": "Tóm tắt đơn hàng",
+    "convertedFrom": "Giá niêm yết {amount}"
+  },
+  "downloads": {
+    "title": "Tải xuống kỹ thuật số",
+    "intro": "Khóa cấp phép và tải xuống cho các sản phẩm kỹ thuật số đã mua.",
+    "noneYet": "Chưa có sản phẩm nào.",
+    "revealKey": "Hiển thị khóa",
+    "download": "Tải xuống",
+    "expired": "Đã hết hạn",
+    "remaining": "Còn {remaining}/{limit} lượt tải",
+    "pendingSeller": "Chờ người bán"
+  },
+  "errors": {
+    "checkoutFailed": "Thanh toán thất bại",
+    "ageRequired": "Vui lòng xác minh tuổi của bạn trước.",
+    "regionRestricted": "Sản phẩm này không thể gửi tới khu vực của bạn.",
+    "outOfStock": "Không đủ hàng tồn kho.",
+    "noLicenseKeys": "Hiện không có khóa cấp phép cho sản phẩm này."
+  },
+  "currency": {
+    "label": "Tiền tệ",
+    "convertedHint": "Ước tính — quy đổi từ {listing}"
+  },
+  "locale": {
+    "label": "Ngôn ngữ"
+  }
+}

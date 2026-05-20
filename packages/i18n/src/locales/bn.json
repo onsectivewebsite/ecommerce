@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "home": "হোম",
+    "search": "অনুসন্ধান",
+    "cart": "কার্ট",
+    "account": "অ্যাকাউন্ট",
+    "orders": "অর্ডার",
+    "downloads": "ডাউনলোড",
+    "signIn": "সাইন ইন",
+    "signOut": "সাইন আউট"
+  },
+  "home": {
+    "heroTagline": "একটি প্রিমিয়াম বৈশ্বিক মার্কেটপ্লেস",
+    "browseCategories": "ক্যাটাগরি দেখুন",
+    "shopAll": "সব দেখুন"
+  },
+  "pdp": {
+    "soldBy": "বিক্রেতা",
+    "inStock": "স্টকে: {qty}",
+    "addToCart": "কার্টে যোগ করুন",
+    "buyNow": "এখনই কিনুন",
+    "qty": "পরিমাণ",
+    "ageGateTitle": "বয়স যাচাই প্রয়োজন",
+    "ageGateBody": "{title} শুধুমাত্র {minAge}+ বছরের ক্রেতাদের জন্য। চালিয়ে যেতে জন্মতারিখ লিখুন।",
+    "ageGateButton": "আমার বয়স {minAge} বা তার বেশি",
+    "ageGateLeave": "পেজ ছেড়ে যান",
+    "ageGateDob": "জন্মতারিখ",
+    "restrictedRegion": "কিছু অঞ্চলে সীমাবদ্ধ",
+    "digitalDelivery": "ডিজিটাল ডেলিভারি",
+    "ageOnly": "শুধু {minAge}+ এর জন্য"
+  },
+  "cart": {
+    "title": "কার্ট",
+    "empty": "আপনার কার্ট খালি।",
+    "subtotal": "উপ-মোট",
+    "checkout": "চেকআউট"
+  },
+  "checkout": {
+    "title": "চেকআউট",
+    "shipping": "শিপিং",
+    "billing": "বিলিং",
+    "payment": "পেমেন্ট",
+    "placeOrder": "অর্ডার দিন",
+    "tax": "কর",
+    "total": "মোট",
+    "summary": "অর্ডার সারাংশ",
+    "convertedFrom": "তালিকাভুক্ত মূল্য {amount}"
+  },
+  "downloads": {
+    "title": "ডিজিটাল ডাউনলোড",
+    "intro": "আপনার কেনা ডিজিটাল পণ্যের লাইসেন্স কী এবং ডাউনলোড।",
+    "noneYet": "এখনও কোনো ডিজিটাল ডেলিভারি নেই।",
+    "revealKey": "কী দেখান",
+    "download": "ডাউনলোড",
+    "expired": "মেয়াদ শেষ",
+    "remaining": "{limit}-এর মধ্যে {remaining} ডাউনলোড বাকি",
+    "pendingSeller": "বিক্রেতার অপেক্ষায়"
+  },
+  "errors": {
+    "checkoutFailed": "চেকআউট ব্যর্থ",
+    "ageRequired": "অনুগ্রহ করে প্রথমে আপনার বয়স যাচাই করুন।",
+    "regionRestricted": "এই পণ্যটি আপনার অঞ্চলে পাঠানো যাবে না।",
+    "outOfStock": "পর্যাপ্ত স্টক নেই।",
+    "noLicenseKeys": "এই পণ্যের লাইসেন্স কী এখন অনুপলব্ধ।"
+  },
+  "currency": {
+    "label": "মুদ্রা",
+    "convertedHint": "আনুমানিক — {listing} থেকে রূপান্তরিত"
+  },
+  "locale": {
+    "label": "ভাষা"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "onsective",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@9.4.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev --parallel",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "clean": "turbo run clean && rimraf node_modules .turbo",
+    "db:migrate": "pnpm --filter @onsective/api db:migrate",
+    "db:reset": "pnpm --filter @onsective/api db:reset",
+    "db:seed": "pnpm --filter @onsective/api db:seed",
+    "infra:up": "docker compose -f infra/docker/compose.yml up -d",
+    "infra:down": "docker compose -f infra/docker/compose.yml down",
+    "infra:logs": "docker compose -f infra/docker/compose.yml logs -f"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.6",
+    "typescript": "^5.5.4",
+    "prettier": "^3.3.3",
+    "rimraf": "^5.0.10"
+  },
+  "engines": {
+    "node": ">=20.11.0",
+    "pnpm": ">=9.0.0"
+  }
+}

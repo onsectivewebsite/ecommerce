@@ -1,0 +1,11 @@
+apiVersion: v2
+name: onsective
+description: Onsective marketplace — API + 4 web portals
+type: application
+version: 0.1.0
+appVersion: "phase-6"
+maintainers:
+  - name: Onsective platform
+keywords:
+  - marketplace
+  - ecommerce

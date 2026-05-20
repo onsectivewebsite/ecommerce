@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "home": "ہوم",
+    "search": "تلاش",
+    "cart": "کارٹ",
+    "account": "اکاؤنٹ",
+    "orders": "آرڈرز",
+    "downloads": "ڈاؤن لوڈز",
+    "signIn": "سائن اِن",
+    "signOut": "سائن آؤٹ"
+  },
+  "home": {
+    "heroTagline": "ایک پریمیم گلوبل مارکیٹ پلیس",
+    "browseCategories": "زمرے دیکھیں",
+    "shopAll": "سب کچھ دیکھیں"
+  },
+  "pdp": {
+    "soldBy": "بیچنے والا",
+    "inStock": "اسٹاک میں: {qty}",
+    "addToCart": "کارٹ میں شامل کریں",
+    "buyNow": "ابھی خریدیں",
+    "qty": "مقدار",
+    "ageGateTitle": "عمر کی تصدیق درکار",
+    "ageGateBody": "{title} صرف {minAge}+ سال کے خریداروں کے لیے ہے۔ جاری رکھنے کے لیے تاریخِ پیدائش درج کریں۔",
+    "ageGateButton": "میں {minAge} سال یا اس سے زیادہ کا/کی ہوں",
+    "ageGateLeave": "صفحہ چھوڑیں",
+    "ageGateDob": "تاریخِ پیدائش",
+    "restrictedRegion": "بعض علاقوں میں پابندی",
+    "digitalDelivery": "ڈجیٹل ڈلیوری",
+    "ageOnly": "صرف {minAge}+ کے لیے"
+  },
+  "cart": {
+    "title": "کارٹ",
+    "empty": "آپ کا کارٹ خالی ہے۔",
+    "subtotal": "ذیلی کل",
+    "checkout": "چیک آؤٹ"
+  },
+  "checkout": {
+    "title": "چیک آؤٹ",
+    "shipping": "شپنگ",
+    "billing": "بلنگ",
+    "payment": "ادائیگی",
+    "placeOrder": "آرڈر دیں",
+    "tax": "ٹیکس",
+    "total": "کل",
+    "summary": "آرڈر کا خلاصہ",
+    "convertedFrom": "اصل قیمت {amount}"
+  },
+  "downloads": {
+    "title": "ڈجیٹل ڈاؤن لوڈز",
+    "intro": "آپ کی خریدی ہوئی ڈجیٹل اشیا کی لائسنس کیز اور ڈاؤن لوڈز۔",
+    "noneYet": "ابھی کوئی ڈجیٹل ڈلیوری نہیں۔",
+    "revealKey": "کی دکھائیں",
+    "download": "ڈاؤن لوڈ",
+    "expired": "میعاد ختم",
+    "remaining": "{limit} میں سے {remaining} ڈاؤن لوڈز باقی",
+    "pendingSeller": "بیچنے والے کے انتظار میں"
+  },
+  "errors": {
+    "checkoutFailed": "چیک آؤٹ ناکام",
+    "ageRequired": "براہِ کرم پہلے اپنی عمر کی تصدیق کریں۔",
+    "regionRestricted": "یہ شے آپ کے علاقے میں بھیجی نہیں جا سکتی۔",
+    "outOfStock": "کافی اسٹاک دستیاب نہیں۔",
+    "noLicenseKeys": "اِس وقت لائسنس کیز دستیاب نہیں۔"
+  },
+  "currency": {
+    "label": "کرنسی",
+    "convertedHint": "تخمیناً — {listing} سے تبدیل"
+  },
+  "locale": {
+    "label": "زبان"
+  }
+}

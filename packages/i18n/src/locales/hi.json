@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "home": "होम",
+    "search": "खोजें",
+    "cart": "कार्ट",
+    "account": "खाता",
+    "orders": "ऑर्डर",
+    "downloads": "डाउनलोड",
+    "signIn": "साइन इन",
+    "signOut": "साइन आउट"
+  },
+  "home": {
+    "heroTagline": "एक प्रीमियम वैश्विक मार्केटप्लेस",
+    "browseCategories": "श्रेणियाँ देखें",
+    "shopAll": "सभी देखें"
+  },
+  "pdp": {
+    "soldBy": "विक्रेता",
+    "inStock": "स्टॉक में: {qty}",
+    "addToCart": "कार्ट में जोड़ें",
+    "buyNow": "अभी खरीदें",
+    "qty": "मात्रा",
+    "ageGateTitle": "आयु सत्यापन आवश्यक",
+    "ageGateBody": "{title} केवल {minAge}+ आयु के खरीदारों के लिए है। जारी रखने के लिए जन्म तिथि दर्ज करें।",
+    "ageGateButton": "मैं {minAge} वर्ष या उससे अधिक का हूँ",
+    "ageGateLeave": "पेज छोड़ें",
+    "ageGateDob": "जन्म तिथि",
+    "restrictedRegion": "कुछ क्षेत्रों में प्रतिबंधित",
+    "digitalDelivery": "डिजिटल डिलीवरी",
+    "ageOnly": "केवल {minAge}+ के लिए"
+  },
+  "cart": {
+    "title": "कार्ट",
+    "empty": "आपका कार्ट खाली है।",
+    "subtotal": "उप-योग",
+    "checkout": "चेकआउट"
+  },
+  "checkout": {
+    "title": "चेकआउट",
+    "shipping": "शिपिंग",
+    "billing": "बिलिंग",
+    "payment": "भुगतान",
+    "placeOrder": "ऑर्डर दें",
+    "tax": "कर",
+    "total": "कुल",
+    "summary": "ऑर्डर सारांश",
+    "convertedFrom": "सूचीबद्ध मूल्य {amount}"
+  },
+  "downloads": {
+    "title": "डिजिटल डाउनलोड",
+    "intro": "आपकी खरीदी गई डिजिटल वस्तुओं की लाइसेंस की और डाउनलोड।",
+    "noneYet": "अभी कोई डिजिटल डिलीवरी नहीं।",
+    "revealKey": "की दिखाएँ",
+    "download": "डाउनलोड",
+    "expired": "समाप्त",
+    "remaining": "{limit} में से {remaining} डाउनलोड शेष",
+    "pendingSeller": "विक्रेता की प्रतीक्षा में"
+  },
+  "errors": {
+    "checkoutFailed": "चेकआउट विफल",
+    "ageRequired": "कृपया पहले अपनी आयु सत्यापित करें।",
+    "regionRestricted": "यह वस्तु आपके क्षेत्र में नहीं भेजी जा सकती।",
+    "outOfStock": "पर्याप्त स्टॉक उपलब्ध नहीं।",
+    "noLicenseKeys": "इस वस्तु के लिए लाइसेंस की अस्थायी रूप से अनुपलब्ध हैं।"
+  },
+  "currency": {
+    "label": "मुद्रा",
+    "convertedHint": "अनुमानित — {listing} से परिवर्तित"
+  },
+  "locale": {
+    "label": "भाषा"
+  }
+}

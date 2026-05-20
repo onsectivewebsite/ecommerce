@@ -1,0 +1,3395 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  BUYER
+  SELLER
+  ADMIN
+  SHIPPER
+}
+
+enum UserStatus {
+  ACTIVE
+  PENDING
+  SUSPENDED
+}
+
+enum SellerStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SUSPENDED
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FULFILLING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  INITIATED
+  AUTHORIZED
+  CAPTURED
+  FAILED
+  REFUNDED
+}
+
+enum ShipmentStatus {
+  PENDING
+  LABEL_PURCHASED
+  PICKED_UP
+  IN_TRANSIT
+  OUT_FOR_DELIVERY
+  DELIVERED
+  EXCEPTION
+  CANCELLED
+}
+
+enum ShipmentEventSource {
+  CARRIER
+  PARTNER
+  ADMIN
+  SYSTEM
+}
+
+enum SubscriptionTier {
+  BASIC
+  PRO
+  ENTERPRISE
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+}
+
+enum AdCampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ENDED
+  EXHAUSTED
+}
+
+enum AdPlacementType {
+  SPONSORED_PRODUCT
+  SEARCH_SPONSOR
+  BANNER_SLOT
+}
+
+enum AdPricingModel {
+  CPC
+  CPM
+}
+
+enum AdEventType {
+  IMPRESSION
+  CLICK
+}
+
+enum LedgerDirection {
+  DEBIT
+  CREDIT
+}
+
+enum LedgerAccountKind {
+  PLATFORM_REVENUE
+  PLATFORM_AD_REVENUE
+  PLATFORM_CLEARING
+  SELLER_PAYABLE
+  SELLER_AD_BUDGET
+  PAYOUT_SENT
+  BUYER_REFUND
+}
+
+enum PayoutStatus {
+  PENDING
+  PROCESSING
+  PAID
+  FAILED
+  CANCELLED
+}
+
+enum PayoutMethod {
+  STRIPE_CONNECT
+  MANUAL
+}
+
+enum ConnectAccountStatus {
+  /// No stripeConnectId on the Seller — onboarding hasn't started.
+  NOT_STARTED
+  /// Account exists, details_submitted is false OR there are
+  /// outstanding requirements blocking activation.
+  PENDING
+  /// Stripe accepts charges but payouts are paused (Stripe-side
+  /// requirements not yet resolved).
+  RESTRICTED
+  /// Charges + payouts both enabled.
+  ENABLED
+  /// Stripe rejected the account permanently.
+  REJECTED
+  /// Onsective admin override — payouts off regardless of Stripe state.
+  /// Set/cleared by admin only; never overwritten by sync.
+  DISABLED
+}
+
+enum ComplianceRequirementKind {
+  AGE_GATE
+  ID_VERIFICATION
+  LICENSE_DOC
+  JURISDICTION_RESTRICTED
+  DIGITAL_LICENSE
+}
+
+enum ComplianceDocStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum DigitalGoodType {
+  LICENSE_KEY
+  FILE_DOWNLOAD
+}
+
+enum LicenseKeyStatus {
+  AVAILABLE
+  ASSIGNED
+  REVOKED
+}
+
+enum AgeConsentMethod {
+  SELF_DECLARATION
+  ID_VERIFIED
+  PAYMENT_GATEWAY
+}
+
+enum TaxKind {
+  GST
+  HST
+  VAT
+  SALES
+  CONSUMPTION
+  NONE
+}
+
+enum TaxJurisdictionType {
+  COUNTRY
+  REGION
+  POSTAL_PREFIX
+}
+
+enum PushPlatform {
+  IOS
+  ANDROID
+  WEB
+}
+
+enum PushDeviceStatus {
+  ACTIVE
+  INACTIVE
+  REVOKED
+}
+
+enum ExperimentStatus {
+  DRAFT
+  RUNNING
+  PAUSED
+  CONCLUDED
+}
+
+enum ReturnStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  SHIPPED
+  RECEIVED
+  REFUNDED
+  CANCELLED
+}
+
+enum ReturnReason {
+  WRONG_ITEM
+  DAMAGED
+  NOT_AS_DESCRIBED
+  NO_LONGER_NEEDED
+  ARRIVED_LATE
+  OTHER
+}
+
+enum RefundMethod {
+  ORIGINAL
+  STORE_CREDIT
+  MANUAL
+}
+
+enum ReviewStatus {
+  VISIBLE
+  HIDDEN_BY_ADMIN
+  DELETED_BY_BUYER
+}
+
+enum MessageSenderKind {
+  BUYER
+  SELLER
+  ADMIN
+  SYSTEM
+}
+
+enum ThreadStatus {
+  OPEN
+  WAITING_BUYER
+  WAITING_SELLER
+  RESOLVED
+  ESCALATED
+}
+
+enum DisputeKind {
+  RETURN
+  MISSING_DELIVERY
+  CHARGEBACK
+  OTHER
+}
+
+enum DisputeStatus {
+  OPEN
+  RESOLVED_BUYER
+  RESOLVED_SELLER
+  RESOLVED_SPLIT
+  CLOSED_NO_ACTION
+}
+
+model User {
+  id            String      @id
+  email         String      @unique
+  passwordHash  String
+  role          UserRole    @default(BUYER)
+  status        UserStatus  @default(ACTIVE)
+  firstName     String
+  lastName      String
+  phone         String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  refreshTokens RefreshToken[]
+  addresses     Address[]
+  seller        Seller?
+  carts         Cart[]
+  orders        Order[]
+  ageConsents   AgeConsentEvent[]
+  preferences   UserPreferences?
+  pushDevices   PushDevice[]
+  returns       Return[]          @relation("ReturnBuyer")
+  reviews       Review[]          @relation("ReviewBuyer")
+  threads       MessageThread[]   @relation("ThreadBuyer")
+  wishlists     Wishlist[]
+  wallet        WalletAccount?
+  promoRedemptions PromotionRedemption[]
+  notificationPreference NotificationPreference?
+  loginEvents   LoginEvent[]
+  stepUpChallenges StepUpChallenge[]
+  warrantyClaims WarrantyClaim[]
+  tradeInOrders TradeInOrder[]
+  // Phase 19: a user may be the primary login for at most one repair partner.
+  repairPartner RepairPartner?
+  // Phase 22: optional Plus membership + a points account.
+  plusMembership PlusMembership?
+  pointsAccount  PointsAccount?
+  // Phase 23: saved cards (Stripe-backed).
+  paymentMethods PaymentMethod[]
+  // Phase 25: referrals — one code per user, plus history fields stamped
+  // at signup if the user came in via someone else's link.
+  referralCode    ReferralCode?
+  referralsMadeAs ReferralRedemption[] @relation("ReferralInviter")
+  redemption      ReferralRedemption?  @relation("ReferralInvitee")
+  referralCodeUsed String?
+  signupIp         String?
+  // Phase 26: GDPR/CCPA deletion lifecycle. We anonymize in place rather
+  // than cascade-delete so business records (orders, payouts, audit) keep
+  // their FK integrity for legal retention.
+  deletionStatus       DeletionRequestStatus?
+  deletionRequestedAt  DateTime?
+  deletionScheduledFor DateTime?
+  deletedAt            DateTime?
+  dataExportRequests   DataExportRequest[]
+  // Phase 27: in-app notification feed entries.
+  notifications        Notification[]
+  // Phase 31: TOTP-based two-factor auth.
+  twoFactorEnabled     Boolean              @default(false)
+  totpEnrollment       TotpEnrollment?
+  recoveryCodes        RecoveryCode[]
+  twoFactorChallenges  TwoFactorChallenge[]
+  // Phase 32: cookie + marketing consent.
+  consentRecord        ConsentRecord?
+  unsubscribeTokens    UnsubscribeToken[]
+  // Phase 33: WebAuthn / passkey credentials.
+  webauthnCredentials  WebAuthnCredential[]
+  // Phase 34: account recovery.
+  passwordResetTokens  PasswordResetToken[]
+  recoveryRequests     AccountRecoveryRequest[]
+  // Phase 35: gift cards.
+  giftCardsPurchased   GiftCard[]              @relation("GiftCardPurchaser")
+  giftCardsRedeemed    GiftCard[]              @relation("GiftCardRedeemer")
+
+  @@index([role])
+  @@index([status])
+}
+
+model RefreshToken {
+  id        String   @id
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  userAgent String?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model Address {
+  id         String   @id
+  userId     String
+  fullName   String
+  line1      String
+  line2      String?
+  city       String
+  region     String
+  postalCode String
+  country    String
+  phone      String?
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  user            User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shippingOrders  Order[] @relation("ShippingAddress")
+  billingOrders   Order[] @relation("BillingAddress")
+
+  @@index([userId])
+}
+
+model Seller {
+  id              String       @id
+  userId          String       @unique
+  storeName       String       @unique
+  displayName     String
+  status          SellerStatus @default(PENDING)
+  commissionBps   Int?
+  payoutCurrency  String       @default("USD")
+  rejectionReason String?
+  // Origin address for shipping label "From"; set by seller, defaults to a platform stub if null.
+  originName      String?
+  originLine1     String?
+  originLine2     String?
+  originCity      String?
+  originRegion    String?
+  originPostal    String?
+  originCountry   String?
+  originPhone     String?
+  // Phase 4: Stripe Connect account id for payouts
+  stripeConnectId String?
+  // Phase 29: Connect account state mirror. Source of truth is Stripe;
+  // the local fields are kept fresh by the account.updated webhook and
+  // the return-URL handler.
+  connectAccountStatus    ConnectAccountStatus @default(NOT_STARTED)
+  payoutsEnabled          Boolean              @default(false)
+  connectOnboardedAt      DateTime?
+  connectLastSyncedAt     DateTime?
+  connectRequirementsDue  Json?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products          Product[]
+  orders            Order[]
+  carrierConfigs    CarrierConfig[]
+  shippingRules     ShippingRule[]
+  subscription      SellerSubscription?
+  listingFeeRules   ListingFeeRule[]
+  listingFeeCharges ListingFeeCharge[]
+  adCampaigns       AdCampaign[]
+  adAssets          AdAsset[]
+  payouts           Payout[]
+  complianceDocs    SellerComplianceDoc[]
+  returns           Return[]
+  threads           MessageThread[]
+  promotions        Promotion[]
+  webhookEndpoints  SellerWebhookEndpoint[]
+  forecastAlerts    InventoryForecastAlert[]
+  healthSnapshots   SellerHealthSnapshot[]
+  inboundShipments  InboundShipment[]
+  storageBillingRuns StorageBillingRun[]
+  certifications    SellerCertification[]
+  brandAuthorizations BrandAuthorization[]
+  refurbUnits       RefurbUnit[]
+  // Phase 15: when a TradeInModel assigns this seller as refurbisher,
+  // trade-in orders route to one of their warehouses.
+  tradeInModels     TradeInModel[]
+  // Phase 17: a seller can be the inventory-holding seller for at most one
+  // brand storefront. Optional.
+  brand             Brand?
+
+  @@index([status])
+}
+
+model Category {
+  id        String     @id
+  slug      String     @unique
+  name      String
+  parentId  String?
+  position  Int        @default(0)
+  createdAt DateTime   @default(now())
+
+  parent           Category?            @relation("CategoryParent", fields: [parentId], references: [id])
+  children         Category[]           @relation("CategoryParent")
+  products         Product[]
+  listingFeeRules  ListingFeeRule[]
+  compliance       CategoryCompliance?
+  complianceDocs   SellerComplianceDoc[]
+  ageConsents      AgeConsentEvent[]
+
+  @@index([parentId])
+}
+
+model Product {
+  id               String        @id
+  sellerId         String
+  categoryId       String
+  slug             String        @unique
+  title            String
+  description      String
+  currency         String
+  basePriceMinor   Int
+  status           ProductStatus @default(DRAFT)
+  attributes       Json          @default("{}")
+  // Phase 5: customs + compliance metadata
+  hsnCode          String?
+  tariffCountry    String?
+  isDigital        Boolean       @default(false)
+  requiresAgeCheck Boolean       @default(false)
+  minBuyerAge      Int?
+  // Phase 13: SELLER = self-fulfill (default), PLATFORM = Onsective Fulfillment.
+  fulfillmentMode  FulfillmentMode @default(SELLER)
+  // Phase 14: certified-only positioning. Default to NEW_GENUINE so the
+  // existing pooled-inventory flow is preserved on migration. REFURB_*
+  // products are sold via per-unit RefurbUnit rows.
+  condition        ProductCondition @default(NEW_GENUINE)
+  brandId          String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  seller         Seller             @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  category       Category           @relation(fields: [categoryId], references: [id])
+  variants       ProductVariant[]
+  media          Media[]
+  feeCharges     ListingFeeCharge[]
+  adPlacements   AdPlacement[]
+  adAssets       AdAsset[]
+  digitalProduct DigitalProduct?
+  ageConsents    AgeConsentEvent[]
+  coViewA        ProductCoView[]    @relation("ProductCoViewA")
+  coViewB        ProductCoView[]    @relation("ProductCoViewB")
+  reviews        Review[]
+  wishlistItems  WishlistItem[]
+  promotionScopes PromotionProductScope[]
+  events         ProductEvent[]
+  brand          Brand?             @relation(fields: [brandId], references: [id])
+  refurbUnits    RefurbUnit[]
+  // Phase 15: trade-in models are keyed by source product (the new one
+  // we'd accept) and point at a destination refurb product to attach
+  // re-listed units to.
+  tradeInModelsAsSource      TradeInModel[] @relation("TradeInSource")
+  tradeInModelsAsDestination TradeInModel[] @relation("TradeInDestination")
+  brandCollectionPins        BrandCollectionProduct[]
+
+  @@index([sellerId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([isDigital])
+  @@index([brandId, condition])
+}
+
+model ProductVariant {
+  id            String   @id
+  productId     String
+  sku           String   @unique
+  name          String
+  priceMinor    Int
+  inventoryQty  Int      @default(0)
+  weightGrams   Int      @default(0)
+  // Phase 13: per-unit cubic centimetres for storage billing. Defaults to
+  // 1000 cm³ when sellers don't supply it.
+  cubicCm       Int      @default(1000)
+  attributes    Json     @default("{}")
+  createdAt     DateTime @default(now())
+
+  product       Product                 @relation(fields: [productId], references: [id], onDelete: Cascade)
+  cartItems     CartItem[]
+  orderItems    OrderItem[]
+  reservations  InventoryReservation[]
+  forecastAlerts InventoryForecastAlert[]
+  stocks        InventoryStock[]
+  inboundItems  InboundShipmentItem[]
+
+  @@index([productId])
+}
+
+model Media {
+  id        String   @id
+  productId String
+  url       String
+  alt       String?
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model Cart {
+  id         String   @id
+  userId     String?  @unique
+  guestToken String?  @unique
+  currency   String   @default("USD")
+  updatedAt  DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  // Phase 10: abandoned-cart recovery. Set when the buyer manually empties
+  // or completes checkout — suppresses further nudges for this cart.
+  recoverySuppressedAt DateTime?
+
+  user   User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
+  items  CartItem[]
+  nudges AbandonedCartNudge[]
+}
+
+model CartItem {
+  id             String   @id
+  cartId         String
+  variantId      String
+  qty            Int
+  unitPriceMinor Int
+  createdAt      DateTime @default(now())
+
+  cart    Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+
+  @@unique([cartId, variantId])
+  @@index([cartId])
+}
+
+model Order {
+  id                String      @id
+  userId            String
+  sellerId          String
+  status            OrderStatus @default(PENDING)
+  currency          String
+  subtotalMinor     Int
+  shippingMinor     Int
+  taxMinor          Int
+  totalMinor        Int
+  commissionMinor   Int
+  shippingAddressId String
+  billingAddressId  String
+  // Phase 2: chosen carrier + service-level snapshot at checkout time.
+  shippingCarrier   String?
+  shippingService   String?
+  // Phase 6: per-jurisdiction tax breakdown captured at checkout time.
+  // Shape: [{ kind, name, jurisdictionCode, ratePctMicro, amountMinor }]
+  taxLines          Json        @default("[]")
+  // Phase 10: applied promotion codes (snapshot) + per-code discount amounts.
+  // Shape: [{ code, kind, scope: 'seller'|'platform', amountMinor }]
+  promotionLines    Json        @default("[]")
+  // Phase 10: wallet/store-credit applied at checkout (subtracted from totalMinor).
+  walletAppliedMinor Int        @default(0)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  user            User        @relation(fields: [userId], references: [id])
+  seller          Seller      @relation(fields: [sellerId], references: [id])
+  shippingAddress Address     @relation("ShippingAddress", fields: [shippingAddressId], references: [id])
+  billingAddress  Address     @relation("BillingAddress", fields: [billingAddressId], references: [id])
+  items           OrderItem[]
+  payment         Payment?
+  shipment        Shipment?
+  returns         Return[]
+  thread          MessageThread?
+  promoRedemptions PromotionRedemption[]
+  riskAssessment  RiskAssessment?
+  hold            OrderHold?
+
+  @@index([userId])
+  @@index([sellerId])
+  @@index([status])
+}
+
+model OrderItem {
+  id                    String  @id
+  orderId               String
+  variantId             String
+  productTitleSnapshot  String
+  variantNameSnapshot   String
+  unitPriceMinor        Int
+  qty                   Int
+  lineSubtotalMinor     Int
+  // Phase 13: set when Onsective Fulfillment routed this item to a specific
+  // platform warehouse. Null = seller-fulfilled (legacy / fallback path).
+  fulfilledFromWarehouseId String?
+  pickedAt              DateTime?
+  // Phase 14: set when this line is a per-unit refurb purchase. The
+  // variantId still references a synthetic singleton variant, but the
+  // RefurbUnit is the source of truth for serial, condition, photos.
+  refurbUnitId          String? @unique
+  // Phase 21: SLA promise snapshot from the chosen WarehouseSlaProfile at
+  // checkout. Null when no profile existed for the (warehouse, destination)
+  // pair or when the item is seller-fulfilled.
+  promisedShipBy        DateTime?
+  promisedDeliverBy     DateTime?
+  slaWindowDays         Int?
+
+  order            Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  variant          ProductVariant   @relation(fields: [variantId], references: [id])
+  digitalDelivery  DigitalDelivery?
+  returnItems      ReturnItem[]
+  review           Review?
+  fulfilledFromWarehouse Warehouse? @relation(fields: [fulfilledFromWarehouseId], references: [id])
+  refurbUnit       RefurbUnit?      @relation(fields: [refurbUnitId], references: [id])
+  warrantyClaims   WarrantyClaim[]
+  slaBreaches      SlaBreach[]
+
+  @@index([orderId])
+  @@index([fulfilledFromWarehouseId, pickedAt])
+  @@index([promisedShipBy, pickedAt])
+  @@index([promisedDeliverBy])
+}
+
+model Payment {
+  id          String        @id
+  orderId     String        @unique
+  provider    String
+  providerRef String?
+  status      PaymentStatus @default(INITIATED)
+  amountMinor Int
+  currency    String
+  raw         Json          @default("{}")
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model AdminSetting {
+  key         String   @id
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+}
+
+model Carrier {
+  code            String  @id
+  displayName     String
+  globallyEnabled Boolean @default(true)
+
+  configs         CarrierConfig[]
+}
+
+model CarrierConfig {
+  id             String   @id
+  sellerId       String
+  carrierCode    String
+  enabled        Boolean  @default(true)
+  accountNumber  String?
+  serviceLevels  Json     @default("[]")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  seller         Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  carrier        Carrier  @relation(fields: [carrierCode], references: [code])
+
+  @@unique([sellerId, carrierCode])
+  @@index([carrierCode])
+}
+
+model ShippingRule {
+  id                    String   @id
+  sellerId              String
+  name                  String
+  priority              Int      @default(100)
+  minWeightGrams        Int      @default(0)
+  maxWeightGrams        Int?
+  destinationCountries  String[] @default([])
+  flatRateMinor         Int?
+  freeAboveMinor        Int?
+  carrierCodeWhitelist  String[] @default([])
+  enabled               Boolean  @default(true)
+  currency              String   @default("USD")
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  seller                Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([sellerId])
+}
+
+model Shipment {
+  id              String          @id
+  orderId         String          @unique
+  carrierCode     String
+  serviceLevel    String
+  status          ShipmentStatus  @default(PENDING)
+  trackingNumber  String?
+  labelObjectKey  String?
+  weightGrams     Int             @default(0)
+  costMinor       Int             @default(0)
+  currency        String          @default("USD")
+  publicToken     String          @unique
+  purchasedAt     DateTime?
+  pickedUpAt      DateTime?
+  deliveredAt     DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  order  Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  events ShipmentEvent[]
+
+  @@index([status])
+  @@index([carrierCode])
+}
+
+model ShipmentEvent {
+  id              String              @id
+  shipmentId      String
+  code            String
+  label           String
+  description     String?
+  locationCity    String?
+  locationCountry String?
+  occurredAt      DateTime
+  source          ShipmentEventSource @default(CARRIER)
+  raw             Json                @default("{}")
+  createdAt       DateTime            @default(now())
+
+  shipment Shipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+
+  @@index([shipmentId])
+}
+
+// --------- Phase 3 ---------
+
+model SellerSubscription {
+  id                 String             @id
+  sellerId           String             @unique
+  tier               SubscriptionTier   @default(BASIC)
+  status             SubscriptionStatus @default(ACTIVE)
+  currentPeriodEnd   DateTime?
+  lastPaymentId      String?
+  cancelledAt        DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  seller Seller @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([tier])
+  @@index([status])
+}
+
+model InventoryReservation {
+  id         String    @id
+  variantId  String
+  cartId     String
+  qty        Int
+  expiresAt  DateTime
+  releasedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, variantId])
+  @@index([variantId, releasedAt, expiresAt])
+}
+
+model ListingFeeRule {
+  id           String   @id
+  sellerId     String?
+  categoryId   String?
+  amountMinor  Int
+  currency     String   @default("USD")
+  enabled      Boolean  @default(true)
+  note         String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  seller   Seller?   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id])
+
+  @@index([sellerId])
+  @@index([categoryId])
+  @@index([enabled])
+}
+
+model ListingFeeCharge {
+  id           String   @id
+  sellerId     String
+  productId    String
+  ruleId       String?
+  amountMinor  Int
+  currency     String
+  note         String?
+  chargedAt    DateTime @default(now())
+
+  seller  Seller  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([sellerId])
+  @@index([productId])
+  @@index([chargedAt])
+}
+
+model AuditLogEntry {
+  id           String   @id
+  actorUserId  String?
+  action       String
+  entityType   String
+  entityId     String?
+  before       Json     @default("{}")
+  after        Json     @default("{}")
+  ip           String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([actorUserId])
+  @@index([createdAt])
+}
+
+// --------- Phase 4 ---------
+
+model LedgerAccount {
+  id        String            @id
+  kind      LedgerAccountKind
+  sellerId  String?
+  currency  String            @default("USD")
+  createdAt DateTime          @default(now())
+
+  entries   LedgerEntry[]
+
+  @@unique([kind, sellerId, currency])
+  @@index([sellerId])
+}
+
+model LedgerEntry {
+  id          String          @id
+  accountId   String
+  direction   LedgerDirection
+  amountMinor Int
+  currency    String
+  txnId       String
+  refType     String?
+  refId       String?
+  note        String?
+  occurredAt  DateTime        @default(now())
+
+  account LedgerAccount @relation(fields: [accountId], references: [id])
+
+  @@index([accountId])
+  @@index([txnId])
+  @@index([refType, refId])
+  @@index([occurredAt])
+}
+
+model AdAsset {
+  id        String   @id
+  sellerId  String
+  type      String
+  url       String?
+  productId String?
+  width     Int?
+  height    Int?
+  alt       String?
+  createdAt DateTime @default(now())
+
+  seller  Seller   @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id])
+
+  @@index([sellerId])
+}
+
+model AdCampaign {
+  id               String           @id
+  sellerId         String
+  name             String
+  status           AdCampaignStatus @default(DRAFT)
+  pricingModel     AdPricingModel   @default(CPC)
+  bidMinor         Int              @default(0)
+  currency         String           @default("USD")
+  dailyBudgetMinor Int              @default(0)
+  totalBudgetMinor Int              @default(0)
+  spentMinor       Int              @default(0)
+  priority         Int              @default(1)
+  startsAt         DateTime?
+  endsAt           DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  seller     Seller        @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  placements AdPlacement[]
+  events     AdEvent[]
+
+  @@index([sellerId, status])
+  @@index([status])
+}
+
+model AdPlacement {
+  id             String          @id
+  campaignId     String
+  type           AdPlacementType
+  productId      String?
+  assetId        String?
+  searchKeyword  String?
+  categorySlug   String?
+  weight         Int             @default(1)
+  destinationUrl String?
+  createdAt      DateTime        @default(now())
+
+  campaign AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  product  Product?   @relation(fields: [productId], references: [id])
+
+  @@index([campaignId])
+  @@index([type])
+  @@index([productId])
+}
+
+model AdEvent {
+  id             String      @id
+  campaignId     String
+  placementId    String
+  type           AdEventType
+  buyerSessionId String?
+  amountMinor    Int         @default(0)
+  currency       String      @default("USD")
+  ledgerTxnId    String?
+  eventKey       String?     @unique
+  occurredAt     DateTime    @default(now())
+
+  campaign AdCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  @@index([campaignId, occurredAt])
+  @@index([type, occurredAt])
+}
+
+model Payout {
+  id          String       @id
+  sellerId    String
+  amountMinor Int
+  currency    String       @default("USD")
+  method      PayoutMethod @default(MANUAL)
+  status      PayoutStatus @default(PENDING)
+  externalRef String?
+  periodStart DateTime
+  periodEnd   DateTime
+  ledgerTxnId String?
+  note        String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  seller Seller @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@unique([sellerId, periodEnd])
+  @@index([sellerId])
+  @@index([status])
+}
+
+// --------- Phase 5 ---------
+
+model CategoryCompliance {
+  id                String                       @id
+  categoryId        String                       @unique
+  minBuyerAge       Int?
+  requiresSellerDoc Boolean                      @default(false)
+  requirementKinds  ComplianceRequirementKind[]
+  blockedCountries  String[]                     @default([])
+  allowedCountries  String[]                     @default([])
+  notes             String?
+  createdAt         DateTime                     @default(now())
+  updatedAt         DateTime                     @updatedAt
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+}
+
+model SellerComplianceDoc {
+  id               String              @id
+  sellerId         String
+  categoryId       String?
+  docType          String
+  fileObjectKey    String
+  fileSizeBytes    Int                 @default(0)
+  status           ComplianceDocStatus @default(PENDING)
+  expiresAt        DateTime?
+  reviewedByUserId String?
+  reviewedAt       DateTime?
+  rejectionReason  String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  seller   Seller    @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id])
+
+  @@index([sellerId])
+  @@index([status])
+  @@index([categoryId])
+}
+
+model DigitalProduct {
+  id              String          @id
+  productId       String          @unique
+  type            DigitalGoodType
+  fileObjectKey   String?
+  fileSizeBytes   Int?
+  fileChecksum    String?
+  downloadLimit   Int             @default(5)
+  expiryDays      Int             @default(30)
+  notesToBuyer    String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  product     Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+  licenseKeys LicenseKey[]
+  deliveries  DigitalDelivery[]
+}
+
+model LicenseKey {
+  id                  String           @id
+  digitalProductId    String
+  codeEncrypted       String
+  codeFingerprint     String           @unique
+  status              LicenseKeyStatus @default(AVAILABLE)
+  assignedOrderItemId String?          @unique
+  assignedAt          DateTime?
+  revokedAt           DateTime?
+  createdAt           DateTime         @default(now())
+
+  digitalProduct DigitalProduct  @relation(fields: [digitalProductId], references: [id], onDelete: Cascade)
+  delivery       DigitalDelivery?
+
+  @@index([digitalProductId, status])
+}
+
+model DigitalDelivery {
+  id               String   @id
+  orderItemId      String   @unique
+  digitalProductId String
+  licenseKeyId     String?  @unique
+  downloadCount    Int      @default(0)
+  expiresAt        DateTime
+  deliveredAt      DateTime @default(now())
+  lastDownloadAt   DateTime?
+
+  digitalProduct DigitalProduct @relation(fields: [digitalProductId], references: [id])
+  licenseKey     LicenseKey?    @relation(fields: [licenseKeyId], references: [id])
+  orderItem      OrderItem      @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  @@index([digitalProductId])
+}
+
+model AgeConsentEvent {
+  id          String           @id
+  userId      String?
+  sessionId   String?
+  productId   String?
+  categoryId  String?
+  dob         DateTime
+  declaredAge Int
+  method      AgeConsentMethod @default(SELF_DECLARATION)
+  ipHash      String
+  userAgent   String?
+  occurredAt  DateTime         @default(now())
+
+  user     User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  product  Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@index([userId, occurredAt])
+  @@index([sessionId, occurredAt])
+  @@index([categoryId])
+}
+
+// --------- Phase 6 ---------
+
+model FxRate {
+  id        String   @id
+  base      String
+  quote     String
+  rate      Decimal  @db.Decimal(18, 8)
+  source    String   @default("exchangerate.host")
+  fetchedAt DateTime @default(now())
+
+  @@unique([base, quote])
+  @@index([fetchedAt])
+}
+
+model TaxRule {
+  id               String              @id
+  name             String
+  kind             TaxKind
+  jurisdictionType TaxJurisdictionType
+  jurisdictionCode String
+  ratePctMicro     Int
+  includedInPrice  Boolean             @default(false)
+  categorySlug     String?
+  priority         Int                 @default(100)
+  enabled          Boolean             @default(true)
+  notes            String?
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  @@index([jurisdictionType, jurisdictionCode, enabled])
+  @@index([kind])
+}
+
+model UserPreferences {
+  userId    String   @id
+  locale    String   @default("en")
+  currency  String   @default("USD")
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model TranslationOverride {
+  id         String   @id
+  entityType String
+  entityId   String
+  locale     String
+  field      String
+  value      String
+  updatedAt  DateTime @updatedAt
+
+  @@unique([entityType, entityId, locale, field])
+  @@index([entityType, entityId])
+}
+
+// --------- Phase 7 ---------
+
+model PushDevice {
+  id            String           @id
+  userId        String
+  expoPushToken String           @unique
+  platform      PushPlatform
+  status        PushDeviceStatus @default(ACTIVE)
+  deviceModel   String?
+  appVersion    String?
+  locale        String?
+  lastSeenAt    DateTime         @default(now())
+  createdAt     DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([status, lastSeenAt])
+}
+
+// --------- Phase 8 ---------
+
+model SearchIndexCheckpoint {
+  entityType String   @id
+  lastSeenAt DateTime
+}
+
+model ProductCoView {
+  id     String   @id
+  aId    String
+  bId    String
+  count  Int      @default(1)
+  lastAt DateTime @default(now())
+
+  a Product @relation("ProductCoViewA", fields: [aId], references: [id], onDelete: Cascade)
+  b Product @relation("ProductCoViewB", fields: [bId], references: [id], onDelete: Cascade)
+
+  @@unique([aId, bId])
+  @@index([aId, count])
+  @@index([bId, count])
+}
+
+model Experiment {
+  id          String           @id
+  key         String           @unique
+  status      ExperimentStatus @default(DRAFT)
+  description String?
+  variants    Json             @default("[]")
+  traffic     Int              @default(10000)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  assignments ExperimentAssignment[]
+}
+
+model ExperimentAssignment {
+  id            String   @id
+  experimentId  String
+  experimentKey String
+  variantId     String
+  userId        String?
+  sessionId     String?
+  context       Json     @default("{}")
+  assignedAt    DateTime @default(now())
+
+  experiment Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+
+  @@unique([experimentKey, userId])
+  @@unique([experimentKey, sessionId])
+  @@index([experimentKey, variantId])
+}
+
+// --------- Phase 9 ---------
+
+model Return {
+  id                   String        @id
+  orderId              String
+  buyerUserId          String
+  sellerId             String
+  reason               ReturnReason
+  buyerNote            String?
+  photoObjectKey       String?
+  status               ReturnStatus  @default(REQUESTED)
+  sellerNote           String?
+  // Phase 9: return-leg shipping is embedded directly on Return — the
+  // outbound `Shipment` keeps its 1-to-1 with Order. Carrier abstraction
+  // produces the label PDF and we store the key + tracking inline.
+  returnCarrierCode    String?
+  returnTrackingNumber String?
+  returnLabelObjectKey String?
+  returnPublicToken    String?       @unique
+  returnShippedAt      DateTime?
+  refundMethod         RefundMethod  @default(ORIGINAL)
+  refundAmountMinor    Int           @default(0)
+  refundProviderRef    String?
+  approvedAt           DateTime?
+  rejectedAt           DateTime?
+  receivedAt           DateTime?
+  refundedAt           DateTime?
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  order    Order        @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  buyer    User         @relation("ReturnBuyer", fields: [buyerUserId], references: [id])
+  seller   Seller       @relation(fields: [sellerId], references: [id])
+  items    ReturnItem[]
+  disputes Dispute[]
+  // Phase 18: 1:1 inspection capturing physical disposition.
+  inspection ReturnInspection?
+
+  @@index([buyerUserId, status])
+  @@index([sellerId, status])
+  @@index([status, createdAt])
+}
+
+model ReturnItem {
+  id          String @id
+  returnId    String
+  orderItemId String
+  qty         Int
+  refundMinor Int
+
+  return    Return    @relation(fields: [returnId], references: [id], onDelete: Cascade)
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
+
+  @@unique([returnId, orderItemId])
+}
+
+model Review {
+  id              String       @id
+  productId       String
+  buyerUserId     String
+  orderItemId     String       @unique
+  rating          Int
+  title           String?
+  body            String
+  status          ReviewStatus @default(VISIBLE)
+  sellerReply     String?
+  sellerRepliedAt DateTime?
+  hiddenReason    String?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  buyer     User      @relation("ReviewBuyer", fields: [buyerUserId], references: [id], onDelete: Cascade)
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
+
+  @@index([productId, status, createdAt])
+  @@index([buyerUserId])
+}
+
+model MessageThread {
+  id             String       @id
+  orderId        String       @unique
+  buyerUserId    String
+  sellerId       String
+  status         ThreadStatus @default(OPEN)
+  lastMessageAt  DateTime     @default(now())
+  unreadByBuyer  Int          @default(0)
+  unreadBySeller Int          @default(0)
+  mutedByBuyer   Boolean      @default(false)
+  mutedBySeller  Boolean      @default(false)
+  escalatedAt    DateTime?
+  resolvedAt     DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  order    Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  buyer    User      @relation("ThreadBuyer", fields: [buyerUserId], references: [id])
+  seller   Seller    @relation(fields: [sellerId], references: [id])
+  messages Message[]
+  dispute  Dispute?
+
+  @@index([buyerUserId, lastMessageAt])
+  @@index([sellerId, lastMessageAt])
+  @@index([status, lastMessageAt])
+}
+
+model Message {
+  id             String            @id
+  threadId       String
+  senderKind     MessageSenderKind
+  senderUserId   String?
+  body           String
+  attachmentKeys String[]          @default([])
+  readByBuyer    Boolean           @default(false)
+  readBySeller   Boolean           @default(false)
+  createdAt      DateTime          @default(now())
+
+  thread MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
+  @@index([threadId, createdAt])
+}
+
+model Dispute {
+  id              String        @id
+  kind            DisputeKind
+  status          DisputeStatus @default(OPEN)
+  threadId        String?       @unique
+  returnId        String?
+  shipmentId      String?
+  paymentId       String?
+  openedByUserId  String?
+  assignedAdminId String?
+  resolutionNote  String?
+  resolutionMinor Int           @default(0)
+  openedAt        DateTime      @default(now())
+  resolvedAt      DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  thread MessageThread? @relation(fields: [threadId], references: [id])
+  return Return?        @relation(fields: [returnId], references: [id])
+
+  @@index([status, openedAt])
+  @@index([assignedAdminId, status])
+  @@index([kind, status])
+}
+
+// ---------- Phase 10: Buyer Growth Engine ----------
+
+enum PromotionKind {
+  PERCENT_OFF
+  AMOUNT_OFF
+  FREE_SHIPPING
+  BOGO
+}
+
+enum PromotionScope {
+  SELLER
+  PLATFORM
+}
+
+enum PromotionStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum WalletTxnKind {
+  CREDIT_GRANT
+  CREDIT_REFUND
+  CREDIT_PROMO
+  CREDIT_GIFT_CARD
+  DEBIT_CHECKOUT
+  DEBIT_REVERSAL
+}
+
+enum AbandonedCartNudgeStage {
+  FIRST_24H
+  SECOND_72H
+}
+
+model Promotion {
+  id               String          @id
+  code             String          @unique
+  kind             PromotionKind
+  scope            PromotionScope
+  status           PromotionStatus @default(ACTIVE)
+  sellerId         String?
+  // For PERCENT_OFF: 0–10000 (basis points, 100 = 1%). For AMOUNT_OFF: cents
+  // in `currency`. For FREE_SHIPPING: 0 (acts as a flag). For BOGO: see
+  // bogoBuyQty / bogoGetQty / bogoGetDiscountBp.
+  valueBpOrMinor   Int             @default(0)
+  currency         String?
+  minSubtotalMinor Int             @default(0)
+  bogoBuyQty       Int?
+  bogoGetQty       Int?
+  bogoGetDiscountBp Int?
+  perUserLimit     Int?
+  totalLimit       Int?
+  startsAt         DateTime?
+  endsAt           DateTime?
+  notes            String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  seller       Seller?               @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  scopes       PromotionProductScope[]
+  redemptions  PromotionRedemption[]
+
+  @@index([scope, status])
+  @@index([sellerId, status])
+}
+
+/**
+ * Optional restriction of a promotion to specific products. Empty set means
+ * the promotion applies to all of the seller's products (or platform-wide).
+ */
+model PromotionProductScope {
+  promotionId String
+  productId   String
+
+  promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([promotionId, productId])
+  @@index([productId])
+}
+
+model PromotionRedemption {
+  id           String   @id
+  promotionId  String
+  userId       String
+  orderId      String
+  amountMinor  Int
+  createdAt    DateTime @default(now())
+
+  promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  order     Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@unique([promotionId, orderId])
+  @@index([promotionId, userId])
+  @@index([userId])
+}
+
+model WalletAccount {
+  id           String   @id
+  userId       String   @unique
+  currency     String   @default("USD")
+  balanceMinor Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions WalletTransaction[]
+}
+
+/**
+ * Append-only ledger. `amountMinor` is signed: positive for credits,
+ * negative for debits. `balanceAfterMinor` is cached for fast statements
+ * and asserted on write to catch concurrent-write bugs.
+ */
+model WalletTransaction {
+  id                String        @id
+  walletId          String
+  kind              WalletTxnKind
+  amountMinor       Int
+  balanceAfterMinor Int
+  reason            String?
+  orderId           String?
+  returnId          String?
+  grantedByUserId   String?
+  createdAt         DateTime      @default(now())
+
+  wallet WalletAccount @relation(fields: [walletId], references: [id], onDelete: Cascade)
+
+  @@index([walletId, createdAt])
+  @@index([orderId])
+  @@index([returnId])
+}
+
+model Wishlist {
+  id         String   @id
+  userId     String
+  name       String   @default("Default")
+  shareToken String?  @unique
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user  User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items WishlistItem[]
+
+  @@index([userId])
+}
+
+model WishlistItem {
+  id                  String   @id
+  wishlistId          String
+  productId           String
+  snapshotPriceMinor  Int
+  snapshotCurrency    String
+  snapshotInStock     Boolean  @default(true)
+  lastNotifiedAt      DateTime?
+  createdAt           DateTime @default(now())
+
+  wishlist Wishlist @relation(fields: [wishlistId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([wishlistId, productId])
+  @@index([productId])
+}
+
+/**
+ * Tracks which nudge stage we've already sent for a given cart so the
+ * scheduler is idempotent across reruns.
+ */
+model AbandonedCartNudge {
+  id        String                   @id
+  cartId    String
+  stage     AbandonedCartNudgeStage
+  sentAt    DateTime                 @default(now())
+
+  cart Cart @relation(fields: [cartId], references: [id], onDelete: Cascade)
+
+  @@unique([cartId, stage])
+  @@index([cartId])
+}
+
+// ---------- Phase 11: Seller Success Suite ----------
+
+enum ProductEventKind {
+  VIEW
+  ADD_TO_CART
+  PURCHASE
+}
+
+enum WebhookEventKind {
+  ORDER_PLACED
+  ORDER_PAID
+  ORDER_CANCELLED
+  SHIPMENT_LABEL_CREATED
+  SHIPMENT_DELIVERED
+  RETURN_REQUESTED
+  RETURN_APPROVED
+  RETURN_REFUNDED
+  REVIEW_POSTED
+  PAYOUT_PAID
+}
+
+enum WebhookDeliveryStatus {
+  PENDING
+  DELIVERED
+  RETRYING
+  DEAD
+}
+
+enum ForecastSeverity {
+  WARNING
+  CRITICAL
+}
+
+/**
+ * Per-user opt-in/out for each notification category. A missing row means
+ * everything is enabled (Phase 11 default-on policy). One row per user
+ * stores a JSON map of category → { email: bool, push: bool } so we don't
+ * have to add a column per category.
+ */
+model NotificationPreference {
+  id        String   @id
+  userId    String   @unique
+  // Shape: { "order_paid": { email: true, push: true }, ... }
+  // Missing key = both channels enabled.
+  prefs     Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/**
+ * Append-only event store for seller analytics. Aggregates are computed
+ * at read time; partition + materialized-view migration deferred until
+ * volume justifies it.
+ */
+model ProductEvent {
+  id          String           @id
+  productId   String
+  variantId   String?
+  sellerId    String
+  kind        ProductEventKind
+  userId      String?
+  sessionId   String?
+  orderId     String?
+  // Monetary value attached to the event when it makes sense
+  // (PURCHASE: line total in order currency; ADD_TO_CART: unit*qty; VIEW: 0).
+  amountMinor Int              @default(0)
+  currency    String?
+  occurredAt  DateTime         @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, occurredAt])
+  @@index([sellerId, occurredAt])
+  @@index([kind, occurredAt])
+}
+
+model InventoryForecastAlert {
+  id            String           @id
+  sellerId      String
+  variantId     String
+  severity      ForecastSeverity
+  velocityPerDay Float
+  daysUntilEmpty Float
+  acknowledgedAt DateTime?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  seller  Seller         @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([variantId, severity])
+  @@index([sellerId, acknowledgedAt])
+}
+
+model SellerWebhookEndpoint {
+  id              String             @id
+  sellerId        String
+  name            String
+  url             String
+  // AES-256-GCM encrypted secret (same helper as license keys).
+  secretEncrypted String
+  events          WebhookEventKind[]
+  active          Boolean            @default(true)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  seller     Seller                  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  deliveries SellerWebhookDelivery[]
+
+  @@index([sellerId, active])
+}
+
+model SellerWebhookDelivery {
+  id           String                @id
+  endpointId   String
+  event        WebhookEventKind
+  payload      Json
+  status       WebhookDeliveryStatus @default(PENDING)
+  attempts     Int                   @default(0)
+  nextAttemptAt DateTime?
+  lastAttemptAt DateTime?
+  lastResponseStatus Int?
+  lastError    String?
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  endpoint SellerWebhookEndpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@index([status, nextAttemptAt])
+  @@index([endpointId, createdAt])
+}
+
+// ---------- Phase 12: Trust, Safety & Operations ----------
+
+enum RiskDecision {
+  ALLOW
+  HOLD
+  BLOCK
+}
+
+enum OrderHoldStatus {
+  OPEN
+  RELEASED
+  CANCELLED
+}
+
+enum LoginOutcome {
+  SUCCESS
+  FAILURE
+}
+
+enum StepUpStatus {
+  PENDING
+  CONSUMED
+  EXPIRED
+}
+
+/**
+ * Per-order risk decision. One row per Order — if we re-score (e.g., after
+ * payment capture) we update in place rather than appending. The rule hits
+ * live in a sibling table so reads can filter without parsing JSON.
+ */
+model RiskAssessment {
+  id        String       @id
+  orderId   String       @unique
+  score     Int
+  decision  RiskDecision
+  // Convenience cache so the admin queue doesn't need a join to count
+  // hits across the table.
+  hitCount  Int          @default(0)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  order Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  hits  RiskRuleHit[]
+
+  @@index([decision, createdAt])
+}
+
+model RiskRuleHit {
+  id           String         @id
+  assessmentId String
+  code         String
+  score        Int
+  reason       String
+  details      Json           @default("{}")
+
+  assessment RiskAssessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+
+  @@index([assessmentId])
+  @@index([code])
+}
+
+model OrderHold {
+  id           String          @id
+  orderId      String          @unique
+  reason       String
+  status       OrderHoldStatus @default(OPEN)
+  reviewedBy   String?
+  reviewNote   String?
+  createdAt    DateTime        @default(now())
+  reviewedAt   DateTime?
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+}
+
+/**
+ * Captures every login (and refresh that yields a new access token). We
+ * never store raw IPs — `hashedIp` is sha256(salt + ip) with a per-deploy
+ * salt. UA fingerprint is a hash of normalized user-agent, used to detect
+ * "new device" anomalies.
+ */
+model LoginEvent {
+  id           String       @id
+  userId       String
+  outcome      LoginOutcome
+  hashedIp     String
+  uaFingerprint String
+  country      String?
+  newDevice    Boolean      @default(false)
+  anomaly      String?
+  occurredAt   DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, occurredAt])
+  @@index([uaFingerprint])
+}
+
+/**
+ * One-time email-token step-up. Issued for sensitive actions; consumed on
+ * verification. `purpose` is a free-form key the caller uses to scope the
+ * challenge to the action (e.g., `webhook.rotate:<endpointId>`).
+ */
+model StepUpChallenge {
+  id        String       @id
+  userId    String
+  purpose   String
+  tokenHash String       @unique
+  status    StepUpStatus @default(PENDING)
+  expiresAt DateTime
+  createdAt DateTime     @default(now())
+  consumedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, purpose, status])
+}
+
+/**
+ * Daily roll-up of seller risk + quality metrics. We never compute health on
+ * read — too expensive and we want a trend chart. Scheduler is the only
+ * writer; reads pull the most recent row.
+ */
+model SellerHealthSnapshot {
+  id                 String   @id
+  sellerId           String
+  score              Int      // 0–100 (100 = healthy)
+  disputeRate        Float    @default(0)
+  chargebackRate     Float    @default(0)
+  returnRate         Float    @default(0)
+  slaBreachRate      Float    @default(0)
+  ordersConsidered   Int      @default(0)
+  windowDays         Int      @default(30)
+  reasons            Json     @default("[]") // free-form drill-down lines
+  capturedAt         DateTime @default(now())
+
+  seller Seller @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([sellerId, capturedAt])
+  @@index([score, capturedAt])
+}
+
+// ---------- Phase 13: Onsective Fulfillment ----------
+
+enum FulfillmentMode {
+  SELLER
+  PLATFORM
+}
+
+enum WarehouseStatus {
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum InboundStatus {
+  DRAFT
+  IN_TRANSIT
+  RECEIVED
+  CLOSED
+  CANCELLED
+}
+
+model Warehouse {
+  id          String          @id
+  code        String          @unique
+  displayName String
+  status      WarehouseStatus @default(ACTIVE)
+  // Free-form address fields; warehouses are platform-owned (or 3PL
+  // operated) so we don't reuse the buyer Address table.
+  line1       String
+  city        String
+  region      String
+  postalCode  String
+  country     String
+  priority    Int             @default(100)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  zones            WarehouseZone[]
+  stocks           InventoryStock[]
+  inboundShipments InboundShipment[]
+  fulfilledItems   OrderItem[]
+  tradeInOrders    TradeInOrder[]
+  returnInspections ReturnInspection[]
+  slaProfiles      WarehouseSlaProfile[]
+
+  @@index([status, priority])
+}
+
+model WarehouseZone {
+  id          String   @id
+  warehouseId String
+  country     String
+  // Optional region codes (US state codes, EU country codes within a region,
+  // postal-code prefixes). Empty = the whole country is covered.
+  regions     String[] @default([])
+
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  @@index([country])
+  @@index([warehouseId])
+}
+
+/**
+ * Per-warehouse stock. Source of truth for inventory; the legacy
+ * ProductVariant.inventoryQty is a denormalized rollup over all stocks.
+ */
+model InventoryStock {
+  id              String   @id
+  variantId       String
+  warehouseId     String
+  quantityOnHand  Int      @default(0)
+  binLocation     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  warehouse Warehouse      @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  @@unique([variantId, warehouseId])
+  @@index([warehouseId])
+  @@index([variantId])
+}
+
+model InboundShipment {
+  id              String        @id
+  sellerId        String
+  warehouseId     String
+  status          InboundStatus @default(DRAFT)
+  carrierCode     String?
+  trackingNumber  String?
+  note            String?
+  shippedAt       DateTime?
+  receivedAt      DateTime?
+  closedAt        DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  seller    Seller                @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  warehouse Warehouse             @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+  items     InboundShipmentItem[]
+
+  @@index([sellerId, status])
+  @@index([warehouseId, status])
+}
+
+model InboundShipmentItem {
+  id            String  @id
+  shipmentId    String
+  variantId     String
+  expectedQty   Int
+  receivedQty   Int     @default(0)
+  discrepancyQty Int    @default(0)
+
+  shipment InboundShipment @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  variant  ProductVariant  @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  authenticityChecks AuthenticityCheck[]
+
+  @@unique([shipmentId, variantId])
+}
+
+/**
+ * Daily storage accrual ledger. The scheduler writes one row per
+ * (seller, day, warehouse) capturing cm³·days stored and the accrued
+ * fee. Monthly billing runs sum these and charge the seller.
+ */
+model StorageBillingRun {
+  id           String   @id
+  sellerId     String
+  warehouseId  String
+  forDay       DateTime
+  cubicCmStored Int
+  feeMinor     Int
+  currency     String   @default("USD")
+  billed       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  seller Seller @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@unique([sellerId, warehouseId, forDay])
+  @@index([billed, forDay])
+}
+
+// ---------- Phase 14: Authenticity & Certified Refurbished ----------
+
+enum ProductCondition {
+  NEW_GENUINE
+  REFURB_GRADE_A
+  REFURB_GRADE_B
+  REFURB_GRADE_C
+  // Phase 18: returned-but-like-new items re-listed via the outlet flow.
+  // Phase 14 RefurbUnit + AuthenticityCheck gate still applies; OPEN_BOX
+  // ships with a 6-month platform warranty by default.
+  OPEN_BOX
+}
+
+enum CertificationKind {
+  AUTHORIZED_RESELLER
+  CERTIFIED_REFURBISHER
+}
+
+enum CertificationStatus {
+  PENDING
+  ACTIVE
+  REJECTED
+  REVOKED
+  EXPIRED
+}
+
+enum RefurbUnitAvailability {
+  AVAILABLE
+  RESERVED
+  SOLD
+  WITHDRAWN
+  QUARANTINED
+}
+
+enum AuthenticityOutcome {
+  PASS
+  FAIL
+  NEEDS_REVIEW
+}
+
+enum WarrantyClaimStatus {
+  OPEN
+  APPROVED
+  REJECTED
+  RESOLVED_REPLACE
+  RESOLVED_REPAIR
+  RESOLVED_REFUND
+}
+
+enum BrandMode {
+  INVENTORY_HOLDING
+  AUTHORIZED_ONLY
+}
+
+model Brand {
+  id          String   @id
+  slug        String   @unique
+  name        String
+  logoUrl     String?
+  contactEmail String?
+  // Categories the brand operates in (slugs). When non-empty, products in
+  // other categories cannot reference this brand.
+  categorySlugs String[] @default([])
+  // Phase 17 — operating mode + storefront content.
+  mode         BrandMode @default(AUTHORIZED_ONLY)
+  // Inventory-holding brands link to a Seller (created via admin bootstrap)
+  // so the brand can list its own stock. Authorized-only brands leave this
+  // null and aggregate authorized resellers on the storefront.
+  sellerId     String?   @unique
+  heroMediaUrl String?
+  heroHeadline String?
+  heroSubcopy  String?
+  story        String?
+  accentColor  String?
+  isPublished  Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  products       Product[]
+  authorizations BrandAuthorization[]
+  collections    BrandCollection[]
+  seller         Seller? @relation(fields: [sellerId], references: [id])
+
+  @@index([slug])
+  @@index([isPublished])
+}
+
+/**
+ * Curated product list on a brand storefront. A brand can have many.
+ */
+model BrandCollection {
+  id        String   @id
+  brandId   String
+  slug      String
+  title     String
+  subtitle  String?
+  position  Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  brand    Brand                     @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  products BrandCollectionProduct[]
+
+  @@unique([brandId, slug])
+  @@index([brandId, position])
+}
+
+model BrandCollectionProduct {
+  id            String @id
+  collectionId  String
+  productId     String
+  position      Int    @default(0)
+
+  collection BrandCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  product    Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([collectionId, productId])
+  @@index([collectionId, position])
+}
+
+/**
+ * One row per (seller, brand, category). Required for any seller publishing
+ * a NEW_GENUINE listing of that brand in that category. Refurb listings
+ * don't need this — they need a CERTIFIED_REFURBISHER cert instead.
+ */
+model BrandAuthorization {
+  id          String   @id
+  sellerId    String
+  brandId     String
+  categorySlug String
+  startsAt    DateTime @default(now())
+  expiresAt   DateTime
+  documentUrl String?
+  note        String?
+  createdAt   DateTime @default(now())
+
+  seller Seller @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  brand  Brand  @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@unique([sellerId, brandId, categorySlug])
+  @@index([brandId])
+  @@index([sellerId, expiresAt])
+}
+
+model SellerCertification {
+  id          String              @id
+  sellerId    String
+  kind        CertificationKind
+  status      CertificationStatus @default(PENDING)
+  documents   Json                @default("[]") // [{url, label}]
+  applicantNote String?
+  reviewNote  String?
+  reviewedBy  String?
+  reviewedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  seller Seller @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@unique([sellerId, kind])
+  @@index([status])
+  @@index([expiresAt])
+}
+
+/**
+ * Per-unit refurbished listing. A REFURB_GRADE_* product has zero
+ * ProductVariant rows — each physical unit is one RefurbUnit. Cart +
+ * checkout treat it as a singleton variant; the SOLD transition is
+ * atomic so two buyers cannot race for the same physical unit.
+ */
+model RefurbUnit {
+  id              String                 @id
+  productId       String
+  sellerId        String
+  warehouseId     String?
+  serialNumber    String
+  imei            String?
+  priceMinor      Int
+  currency        String
+  // Free-form condition report; UI renders well-known keys
+  // (batteryHealth, screenCondition, replacedParts[]) and shows the rest
+  // as a notes list.
+  conditionReport Json                   @default("{}")
+  // Photo gallery — Media IDs of the actual unit (not generic catalog photos).
+  unitPhotoMediaIds String[]             @default([])
+  availability    RefurbUnitAvailability @default(AVAILABLE)
+  // Set when the unit is reserved by a cart so two buyers can't race.
+  reservedByCartId String?
+  reservedUntil   DateTime?
+  soldOrderItemId String?
+  warrantyMonths  Int                    @default(0)
+  // Synthetic singleton ProductVariant created at publish time so the cart
+  // layer can treat a refurb unit like any other variant. Cart adds/removes,
+  // pricing, and checkout reservation all funnel through this variant; the
+  // RefurbUnit row is the source of truth for serial, photos, and condition.
+  variantId       String?                @unique
+  // Phase 22: stamped the first time the unit becomes AVAILABLE. Used by the
+  // Onsective Plus early-outlet-access gate — Plus members see new units
+  // immediately; non-Plus buyers see them once they're past the window.
+  firstListedAt   DateTime?
+  // Phase 16: last AI authenticity summary cached for buyer-facing trust UI.
+  // Shape: { suggestion, confidence, modelName, modelVersion, runId, signals[] }.
+  // Never used to make decisions — that's still the human auth-check.
+  aiSummary       Json?
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  product   Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  seller    Seller      @relation(fields: [sellerId], references: [id])
+  orderItem OrderItem?
+  authenticityChecks AuthenticityCheck[]
+
+  @@unique([productId, serialNumber])
+  @@index([availability, productId])
+  @@index([sellerId, availability])
+  @@index([serialNumber])
+}
+
+/**
+ * Mandatory before stock goes live. One row per received unit (or per
+ * inbound line for NEW_GENUINE pooled inventory). PASS → live; FAIL →
+ * QUARANTINED + seller health hit; NEEDS_REVIEW → admin queue.
+ */
+model AuthenticityCheck {
+  id            String              @id
+  inboundItemId String?
+  refurbUnitId  String?
+  serialNumber  String?
+  outcome       AuthenticityOutcome
+  inspectorUserId String?
+  evidence      Json                @default("[]") // [{ kind, url, note }]
+  reason        String?
+  createdAt     DateTime            @default(now())
+
+  inboundItem InboundShipmentItem? @relation(fields: [inboundItemId], references: [id], onDelete: SetNull)
+  refurbUnit  RefurbUnit?          @relation(fields: [refurbUnitId], references: [id], onDelete: SetNull)
+
+  @@index([outcome, createdAt])
+  @@index([serialNumber])
+}
+
+/**
+ * Defect-driven claim distinct from a Phase 9 Return. Different SLA,
+ * different burden of proof, different financial path.
+ */
+model WarrantyClaim {
+  id             String              @id
+  orderItemId    String
+  claimantUserId String
+  symptom        String
+  evidence       Json                @default("[]") // [{url, kind, note}]
+  status         WarrantyClaimStatus @default(OPEN)
+  resolutionNote String?
+  resolvedBy     String?
+  resolvedAt     DateTime?
+  // Link to whatever fixed the claim — a refund providerRef, a replacement
+  // RefurbUnit id, or a refurbisher repair ticket reference.
+  resolutionRef  String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  claimant  User      @relation(fields: [claimantUserId], references: [id])
+  // Phase 19: a warranty claim has at most one repair service ticket.
+  serviceTicket ServiceTicket?
+
+  @@index([orderItemId])
+  @@index([claimantUserId, createdAt])
+  @@index([status, createdAt])
+}
+
+// ============================================================================
+// Phase 15 — Trade-in & Circular Loop
+// ============================================================================
+
+enum TradeInGrade {
+  GRADE_A
+  GRADE_B
+  GRADE_C
+  REJECT
+}
+
+enum TradeInOrderStatus {
+  CREATED
+  KIT_SHIPPED
+  IN_TRANSIT
+  RECEIVED
+  GRADED
+  PAID
+  REJECTED
+  CANCELLED
+}
+
+enum TradeInPayoutMethod {
+  WALLET
+  STRIPE
+}
+
+/**
+ * One row per (sourceProduct) describing what we'll buy back and at what
+ * payout. Always points at a destination refurb product where graded units
+ * are re-listed as RefurbUnits.
+ */
+model TradeInModel {
+  id                    String   @id
+  sourceProductId       String   @unique
+  destinationProductId  String
+  baseOfferMinor        Int
+  currency              String
+  // { GRADE_A: 0.85, GRADE_B: 0.6, GRADE_C: 0.3, REJECT: 0 }
+  gradeMultipliers      Json     @default("{}")
+  // [{ key: "box", amountMinor: 500, label: "Original box" }, ...]
+  accessoryAdjustments  Json     @default("[]")
+  // When set, trade-in orders route to this seller (refurbisher); otherwise
+  // they route to the platform house-seller.
+  assignedRefurbiserId  String?
+  enabled               Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  sourceProduct      Product @relation("TradeInSource", fields: [sourceProductId], references: [id])
+  destinationProduct Product @relation("TradeInDestination", fields: [destinationProductId], references: [id])
+  assignedRefurbiser Seller? @relation(fields: [assignedRefurbiserId], references: [id])
+
+  orders TradeInOrder[]
+
+  @@index([enabled])
+}
+
+/**
+ * A trade-in order placed by a buyer. Quotes themselves are not stored —
+ * they're signed HMAC tokens. Acceptance verifies the signature and writes
+ * the offer fields here.
+ */
+model TradeInOrder {
+  id                 String              @id
+  buyerUserId        String
+  modelId            String
+  warehouseId        String
+  status             TradeInOrderStatus  @default(CREATED)
+  declaredGrade      TradeInGrade
+  actualGrade        TradeInGrade?
+  // Snapshot of accessory keys at quote time (so payout recompute is stable).
+  accessories        String[]            @default([])
+  offerMinor         Int
+  finalPayoutMinor   Int?
+  currency           String
+  payoutMethod       TradeInPayoutMethod @default(WALLET)
+  // Reverse ship-back label, paid by Onsective.
+  shipBackTracking   String?
+  shipBackLabelUrl   String?
+  shipBackCarrier    String?
+  // Rejection reason / buyer-facing note when REJECTED.
+  rejectionReason    String?
+  // Created RefurbUnit when grading completes (auto re-list).
+  refurbUnitId       String?
+  receivedAt         DateTime?
+  gradedAt           DateTime?
+  paidAt             DateTime?
+  cancelledAt        DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  buyer     User         @relation(fields: [buyerUserId], references: [id])
+  model     TradeInModel @relation(fields: [modelId], references: [id])
+  warehouse Warehouse    @relation(fields: [warehouseId], references: [id])
+  intake    TradeInIntake?
+  grading   TradeInGrading?
+
+  @@index([buyerUserId, status])
+  @@index([warehouseId, status])
+  @@index([status, createdAt])
+}
+
+/**
+ * Recorded at the receiving warehouse when the trade-in arrives. The
+ * grading step that follows reads this to make the call.
+ */
+model TradeInIntake {
+  id              String   @id
+  orderId         String   @unique
+  technicianUserId String
+  receivedAt      DateTime @default(now())
+  photoUrls       String[] @default([])
+  conditionNotes  String?
+  createdAt       DateTime @default(now())
+
+  order TradeInOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+/**
+ * Final grading decision. PAID transitions happen after this writes.
+ * If actualGrade < declaredGrade, payoutMinor reflects the recomputed offer.
+ */
+model TradeInGrading {
+  id              String       @id
+  orderId         String       @unique
+  technicianUserId String
+  actualGrade     TradeInGrade
+  payoutMinor     Int
+  notes           String?
+  evidenceUrls    String[]     @default([])
+  createdAt       DateTime     @default(now())
+
+  order TradeInOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+// ============================================================================
+// Phase 16 — AI-assisted Authentication & Grading
+// ============================================================================
+
+enum AiModelKind {
+  AUTH
+  GRADE
+  COUNTERFEIT
+}
+
+/**
+ * Registry of vision models. Multiple rows per kind can coexist; the one
+ * with isActive=true is used at suggest-time. Write-once fields preserve
+ * the audit trail; only isActive and thresholdConfidence are mutable.
+ */
+model AiModel {
+  id                  String      @id
+  name                String
+  kind                AiModelKind
+  version             String
+  thresholdConfidence Float       @default(0.7)
+  providerKind        String      // "heuristic" | "remote"
+  isActive            Boolean     @default(false)
+  notes               String?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  inferences AiInferenceRun[]
+
+  @@unique([name, version])
+  @@index([kind, isActive])
+}
+
+/**
+ * Every AI call writes one row. Result JSON carries the typed signals.
+ * Recording is best-effort fire-and-forget at the call site, but when
+ * persisted this is the audit trail joining AI suggestions to human
+ * decisions (via AuthenticityCheck.evidence[].aiInferenceRunId or
+ * TradeInGrading.notes referencing the run id).
+ */
+model AiInferenceRun {
+  id            String      @id
+  modelId       String
+  kind          AiModelKind
+  // Reference to the entity being analyzed; we don't FK here because the
+  // entity type varies (refurbUnitId | inboundItemId | tradeInOrderId).
+  inputRefKind  String
+  inputRefId    String
+  // sha256 of the canonical inputs — enables idempotency + future replay.
+  inputDigest   String
+  // { suggestion?, suggestedGrade?, confidence, signals[], counterfeitRisk? }
+  result        Json        @default("{}")
+  latencyMs     Int         @default(0)
+  providerKind  String
+  createdAt     DateTime    @default(now())
+
+  model AiModel @relation(fields: [modelId], references: [id])
+
+  @@index([inputRefKind, inputRefId, createdAt])
+  @@index([modelId, createdAt])
+  @@index([inputDigest])
+}
+
+/**
+ * Accumulated counterfeit signals per serial. A second hit auto-routes the
+ * next inbound for the same serial to NEEDS_REVIEW. Reset by admin only.
+ */
+model CounterfeitWatchEntry {
+  id            String   @id
+  serialNumber  String
+  signalCount   Int      @default(0)
+  lastSignalAt  DateTime @default(now())
+  lastReason    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([serialNumber])
+  @@index([signalCount])
+}
+
+// ============================================================================
+// Phase 18 — Returns Liquidation & Outlet
+// ============================================================================
+
+enum ReturnDisposition {
+  OUTLET_RELIST
+  REFURB_REGRADE
+  DISPOSE
+  RETURN_TO_SELLER
+}
+
+/**
+ * One per Return, recorded by warehouse staff when the unit is physically
+ * inspected. Decides where the unit goes next. OUTLET_RELIST auto-creates
+ * an OPEN_BOX RefurbUnit (still QUARANTINED until the Phase 14 auth gate).
+ */
+model ReturnInspection {
+  id                   String            @id
+  returnId             String            @unique
+  warehouseId          String
+  technicianUserId     String
+  disposition          ReturnDisposition
+  conditionNotes       String?
+  photoUrls            String[]          @default([])
+  // For OUTLET_RELIST: percentage discount in bps (e.g. 1500 = 15%).
+  outletDiscountBps    Int?
+  // For OUTLET_RELIST: the created refurb unit (back-link for UI/audit).
+  createdRefurbUnitId  String?           @unique
+  // For DISPOSE: required reason string.
+  disposeReason        String?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  return    Return    @relation(fields: [returnId], references: [id], onDelete: Cascade)
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id])
+
+  @@index([disposition, createdAt])
+  @@index([warehouseId, createdAt])
+}
+
+// ============================================================================
+// Phase 19 — Repair Network & Service Tickets
+// ============================================================================
+
+enum RepairPartnerStatus {
+  PENDING
+  ACTIVE
+  PAUSED
+  REVOKED
+}
+
+enum ServiceTicketStatus {
+  CREATED
+  ASSIGNED
+  INBOUND
+  RECEIVED
+  DIAGNOSING
+  REPAIRING
+  OUTBOUND
+  COMPLETED
+  CANCELLED
+}
+
+enum ServiceTicketEventKind {
+  STATUS_CHANGED
+  NOTE_ADDED
+  ASSIGNED
+  REASSIGNED
+  CANCELLED
+  COMPLETED
+}
+
+/**
+ * Verified third-party repair operator. Service provider, not a seller —
+ * separate model so seller-health, payouts, listing fees, and brand-auth
+ * gates don't apply.
+ */
+model RepairPartner {
+  id                       String              @id
+  userId                   String              @unique
+  displayName              String
+  status                   RepairPartnerStatus @default(PENDING)
+  capabilityCategorySlugs  String[]            @default([])
+  dailyCapacity            Int                 @default(20)
+  turnaroundHours          Int                 @default(72)
+  serviceLine1             String?
+  serviceCity              String?
+  serviceRegion            String?
+  servicePostal            String?
+  serviceCountry           String?
+  notes                    String?
+  createdAt                DateTime            @default(now())
+  updatedAt                DateTime            @updatedAt
+
+  user    User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tickets ServiceTicket[]
+
+  @@index([status])
+  @@index([serviceCountry])
+}
+
+model ServiceTicket {
+  id                      String              @id
+  warrantyClaimId         String              @unique
+  partnerId               String?
+  status                  ServiceTicketStatus @default(CREATED)
+  buyerNote               String?
+  partnerNote             String?
+  estimatedPartsCostMinor Int?
+  currency                String?
+  inboundCarrier          String?
+  inboundTracking         String?
+  outboundCarrier         String?
+  outboundTracking        String?
+  completedAt             DateTime?
+  cancelledAt             DateTime?
+  cancelledReason         String?
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
+
+  warrantyClaim WarrantyClaim         @relation(fields: [warrantyClaimId], references: [id], onDelete: Cascade)
+  partner       RepairPartner?        @relation(fields: [partnerId], references: [id])
+  events        ServiceTicketEvent[]
+
+  @@index([partnerId, status])
+  @@index([status, createdAt])
+}
+
+model ServiceTicketEvent {
+  id            String                 @id
+  ticketId      String
+  kind          ServiceTicketEventKind
+  actorUserId   String?
+  note          String?
+  payload       Json                   @default("{}")
+  createdAt     DateTime               @default(now())
+
+  ticket ServiceTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId, createdAt])
+}
+
+// ============================================================================
+// Phase 20 — Sustainability & Trade Reporting
+// ============================================================================
+
+enum SustainabilitySubjectKind {
+  REFURB_PURCHASE
+  OPENBOX_PURCHASE
+  TRADEIN_PAYOUT
+  REPAIR_COMPLETED
+}
+
+/**
+ * Per-category baseline. Optional brandId override beats the
+ * categorySlug-only row at lookup time. Editable by admin; new events use
+ * the new values, but past SustainabilityImpact rows are snapshotted and
+ * never recompute.
+ */
+model SustainabilityFactor {
+  id                   String   @id
+  categorySlug         String
+  brandId              String?
+  kgCo2PerRefurb       Float    @default(0)
+  kgMaterialPerRefurb  Float    @default(0)
+  lifeExtensionYears   Float    @default(0)
+  notes                String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@unique([categorySlug, brandId])
+  @@index([categorySlug])
+}
+
+/**
+ * One per circular event. subjectId is a loose FK (no Prisma relation)
+ * because the source table varies by subjectKind — same pattern as
+ * AiInferenceRun.inputRefId.
+ */
+model SustainabilityImpact {
+  id                  String                    @id
+  subjectKind         SustainabilitySubjectKind
+  subjectId           String
+  buyerUserId         String?
+  sellerId            String?
+  brandId             String?
+  categorySlug        String
+  kgCo2Saved          Float                     @default(0)
+  kgMaterialDiverted  Float                     @default(0)
+  lifeExtensionYears  Float                     @default(0)
+  reason              String?
+  createdAt           DateTime                  @default(now())
+
+  @@unique([subjectKind, subjectId])
+  @@index([buyerUserId, createdAt])
+  @@index([brandId, createdAt])
+  @@index([categorySlug, createdAt])
+}
+
+// ============================================================================
+// Phase 21 — Multi-warehouse Smart Routing & SLA
+// ============================================================================
+
+enum SlaBreachKind {
+  SHIP
+  DELIVER
+}
+
+/**
+ * Per-warehouse SLA per destination. region is nullable for the
+ * country-default profile. Lookup priority is
+ * (warehouseId, country, region) → (warehouseId, country, null) → null.
+ */
+model WarehouseSlaProfile {
+  id            String   @id
+  warehouseId   String
+  country       String
+  region        String?
+  shipDays      Int
+  deliveryDays  Int
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  warehouse Warehouse @relation(fields: [warehouseId], references: [id], onDelete: Cascade)
+
+  @@unique([warehouseId, country, region])
+  @@index([country, region])
+}
+
+/**
+ * Breach event log. The scheduler writes one row when an OrderItem's
+ * promisedShipBy/promisedDeliverBy passes without the corresponding
+ * completion. Uniqueness on (orderItemId, kind) prevents double-write
+ * when the scheduler re-runs.
+ */
+model SlaBreach {
+  id            String        @id
+  orderItemId   String
+  kind          SlaBreachKind
+  promisedAt    DateTime
+  detectedAt    DateTime      @default(now())
+  breachHours   Float
+  sellerId      String?
+  createdAt     DateTime      @default(now())
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+
+  @@unique([orderItemId, kind])
+  @@index([sellerId, createdAt])
+  @@index([kind, createdAt])
+}
+
+// ============================================================================
+// Phase 22 — Loyalty & Membership
+// ============================================================================
+
+enum MembershipPlan {
+  PLUS_MONTHLY
+  PLUS_ANNUAL
+}
+
+enum MembershipStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  PAUSED
+}
+
+enum PointsTransactionKind {
+  EARN_PURCHASE
+  EARN_REFURB
+  EARN_TRADEIN
+  EARN_REPAIR
+  EARN_BONUS
+  REDEEM_WALLET
+  ADJUST
+}
+
+model PlusMembership {
+  id              String           @id
+  userId          String           @unique
+  plan            MembershipPlan
+  status          MembershipStatus @default(ACTIVE)
+  startedAt       DateTime         @default(now())
+  expiresAt       DateTime
+  renewedAt       DateTime?
+  cancelledAt     DateTime?
+  cancelReason    String?
+  // Snapshot of price paid at term start (for the buyer's history view).
+  pricePaidMinor  Int
+  currency        String
+  // Loose reference to the payment that funded this term. We don't FK
+  // because Payment rows in the existing schema are owned by Order.
+  paymentRef      String?
+  // Phase 23: Stripe Subscription mirror. providerSubscriptionId is null
+  // for legacy Phase-22 rows started before recurring billing landed.
+  providerSubscriptionId String?  @unique
+  autoRenew              Boolean  @default(true)
+  currentPeriodEnd       DateTime?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  user          User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  billingEvents MembershipBillingEvent[]
+
+  @@index([status])
+  @@index([expiresAt])
+  @@index([providerSubscriptionId])
+}
+
+model PointsAccount {
+  id        String   @id
+  userId    String   @unique
+  balance   Int      @default(0)
+  currency  String   @default("USD")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user         User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions PointsTransaction[]
+}
+
+model PointsTransaction {
+  id            String                @id
+  accountId     String
+  amount        Int
+  kind          PointsTransactionKind
+  balanceAfter  Int
+  reason        String?
+  /// Idempotency key — duplicate writes for the same event are rejected
+  /// by the unique constraint. Examples: "purchase:<orderId>",
+  /// "tradein:<orderId>", "repair:<ticketId>", "redeem:<txId>".
+  referenceKey  String?               @unique
+  orderId       String?
+  createdAt     DateTime              @default(now())
+
+  account PointsAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, createdAt])
+  @@index([kind, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 23 — Recurring Billing & Saved Payment Methods
+// ---------------------------------------------------------------------------
+
+enum PaymentMethodStatus {
+  ACTIVE
+  DETACHED
+}
+
+enum MembershipBillingEventKind {
+  INVOICE_PAID
+  INVOICE_FAILED
+  SUB_UPDATED
+  SUB_DELETED
+  /// Phase 24: idempotent marker that the buyer has been emailed an
+  /// "expiring soon" reminder for the current term. providerEventId is
+  /// synthesized as `reminder:<membershipId>:<currentPeriodEnd-iso>`.
+  NOTICE_SENT
+}
+
+model PaymentMethod {
+  id                 String              @id
+  userId             String
+  /// Stripe customer id. Cached on every row of the same user; we look it
+  /// up via the user's first row in `ensureCustomer`.
+  providerCustomerId String
+  /// Stripe payment method id (pm_xxx). Globally unique.
+  providerMethodId   String              @unique
+  brand              String
+  last4              String
+  expMonth           Int
+  expYear            Int
+  isDefault          Boolean             @default(false)
+  status             PaymentMethodStatus @default(ACTIVE)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([userId, isDefault])
+}
+
+model MembershipBillingEvent {
+  id              String                     @id
+  membershipId    String
+  /// Stripe event id (evt_xxx). Unique so webhook re-delivery is a no-op.
+  providerEventId String                     @unique
+  kind            MembershipBillingEventKind
+  amountMinor     Int?
+  currency        String?
+  reason          String?
+  /// Small JSON snapshot of the meaningful Stripe payload fields, kept for
+  /// audit/debugging. Not the entire payload.
+  rawSummary      Json?
+  createdAt       DateTime                   @default(now())
+
+  membership PlusMembership @relation(fields: [membershipId], references: [id], onDelete: Cascade)
+
+  @@index([membershipId, createdAt])
+  @@index([kind, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 25 — Buyer Referrals
+// ---------------------------------------------------------------------------
+
+enum ReferralCodeStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum ReferralRedemptionRejectionReason {
+  NO_SUCH_CODE
+  CODE_DISABLED
+  SELF_REDEMPTION
+  SAME_ADDRESS
+  SAME_IP
+  LIMIT_REACHED
+  ALREADY_REDEEMED
+}
+
+model ReferralCode {
+  id               String             @id
+  code             String             @unique
+  userId           String             @unique
+  status           ReferralCodeStatus @default(ACTIVE)
+  totalRedemptions Int                @default(0)
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  user        User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  redemptions ReferralRedemption[]
+}
+
+model ReferralRedemption {
+  id                   String   @id
+  codeId               String
+  inviterUserId        String
+  /// One redemption per invitee enforced by the unique constraint.
+  inviteeUserId        String   @unique
+  /// One redemption per order enforced by the unique constraint.
+  inviteeFirstOrderId  String   @unique
+  inviterPointsAwarded Int
+  inviteePointsAwarded Int
+  signupIp             String?
+  signupUserAgent      String?
+  createdAt            DateTime @default(now())
+
+  code    ReferralCode @relation(fields: [codeId], references: [id], onDelete: Cascade)
+  inviter User         @relation("ReferralInviter", fields: [inviterUserId], references: [id], onDelete: Cascade)
+  invitee User         @relation("ReferralInvitee", fields: [inviteeUserId], references: [id], onDelete: Cascade)
+
+  @@index([inviterUserId, createdAt])
+  @@index([codeId, createdAt])
+}
+
+model ReferralAbuseEvent {
+  id               String                            @id
+  attemptedCode    String
+  attemptedUserId  String?
+  reason           ReferralRedemptionRejectionReason
+  ip               String?
+  userAgent        String?
+  createdAt        DateTime                          @default(now())
+
+  @@index([attemptedCode, createdAt])
+  @@index([reason, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 26 — Privacy: data export + account deletion
+// ---------------------------------------------------------------------------
+
+enum DataExportStatus {
+  PENDING
+  BUILDING
+  READY
+  EXPIRED
+  FAILED
+}
+
+enum DeletionRequestStatus {
+  REQUESTED
+  CANCELLED
+  COMPLETED
+}
+
+model DataExportRequest {
+  id          String           @id
+  userId      String
+  status      DataExportStatus @default(PENDING)
+  downloadUrl String?
+  /// Set when status flips to READY. Lazy-expiry promotes READY → EXPIRED on read.
+  expiresAt   DateTime?
+  sizeBytes   Int?
+  error       String?
+  createdAt   DateTime         @default(now())
+  completedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+  @@index([expiresAt])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 27 — In-app notification feed
+// ---------------------------------------------------------------------------
+
+enum NotificationKind {
+  PLUS_RENEWED
+  PLUS_PAYMENT_FAILED
+  PLUS_EXPIRING_SOON
+  PLUS_EXPIRED
+  REFERRAL_REDEEMED
+  ORDER_PAID
+  ORDER_SHIPPED
+  ORDER_DELIVERED
+  MESSAGE_NEW
+  REVIEW_POSTED
+  SECURITY_SIGN_IN
+  GENERIC
+}
+
+model Notification {
+  id            String           @id
+  userId        String
+  kind          NotificationKind
+  title         String
+  body          String
+  /// In-app navigation target (e.g., "/orders/abc"). Frontend decides
+  /// whether to in-app-navigate or full-reload.
+  deepLinkPath  String?
+  /// Snapshot of the contextual data (e.g., { orderId, totalMinor }). Kept
+  /// small — large fields belong in the linked entity.
+  payload       Json?
+  readAt        DateTime?
+  createdAt     DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, readAt])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 30 — Rate limiting + abuse prevention
+// ---------------------------------------------------------------------------
+
+enum AbuseEventKind {
+  RATE_LIMIT_EXCEEDED
+  REPEAT_VIOLATION
+  MANUAL_BLOCK
+}
+
+enum RateLimitBlockSource {
+  MANUAL
+  AUTO
+}
+
+model AbuseEvent {
+  id          String         @id
+  ruleId      String
+  /// Composite identifier the limiter blocked on, e.g.
+  /// "auth.login:ip:203.0.113.42" or "orders.checkout:user:u_abc".
+  key         String
+  kind        AbuseEventKind
+  ip          String?
+  userAgent   String?
+  userId      String?
+  requestPath String?
+  createdAt   DateTime       @default(now())
+
+  @@index([ruleId, createdAt])
+  @@index([key, createdAt])
+  @@index([userId, createdAt])
+}
+
+model RateLimitBlock {
+  id              String               @id
+  /// Same composite shape as AbuseEvent.key. Unique so an AUTO block can
+  /// be upserted idempotently when escalation thresholds are crossed.
+  key             String               @unique
+  ruleId          String
+  reason          String
+  source          RateLimitBlockSource
+  /// null = indefinite (admin must clear).
+  blockedUntil    DateTime?
+  blockedByUserId String?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@index([blockedUntil])
+  @@index([ruleId, createdAt])
+}
+
+// ───────────────────────── Phase 31: Two-Factor Auth ─────────────────────────
+
+enum TwoFactorEnrollmentStatus {
+  PENDING
+  ACTIVE
+}
+
+enum TwoFactorChallengeKind {
+  LOGIN
+  DISABLE
+  WEBAUTHN_REGISTER
+  WEBAUTHN_LOGIN
+}
+
+model TotpEnrollment {
+  id             String                    @id
+  userId         String                    @unique
+  /// AES-256-GCM ciphertext of the raw 20-byte TOTP secret, base64.
+  secretCipher   String
+  /// 12-byte GCM IV, base64.
+  secretIv       String
+  /// 16-byte GCM auth tag, base64.
+  secretTag      String
+  status         TwoFactorEnrollmentStatus @default(PENDING)
+  /// Highest TOTP step counter we've accepted. Used for replay protection:
+  /// reject any submitted code whose step is <= this value.
+  lastUsedStep   BigInt                    @default(0)
+  activatedAt    DateTime?
+  lastUsedAt     DateTime?
+  createdAt      DateTime                  @default(now())
+  updatedAt      DateTime                  @updatedAt
+
+  user           User                      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model RecoveryCode {
+  id        String    @id
+  userId    String
+  /// argon2(code). Cleartext is shown exactly once at issue-time.
+  codeHash  String
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model TwoFactorChallenge {
+  id         String                  @id
+  userId     String
+  kind       TwoFactorChallengeKind
+  /// sha256 of the opaque token handed to the client.
+  tokenHash  String                  @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime                @default(now())
+
+  user       User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, kind])
+  @@index([expiresAt])
+}
+
+// ───────────────────────── Phase 32: Consent & Marketing Preferences ─────────────────────────
+
+enum ConsentCategory {
+  ESSENTIAL
+  FUNCTIONAL
+  ANALYTICS
+  MARKETING
+}
+
+enum ConsentSource {
+  BANNER
+  PREFERENCES_PAGE
+  UNSUBSCRIBE_LINK
+  ADMIN_OVERRIDE
+  IMPORT
+}
+
+enum ConsentRegion {
+  EU
+  UK
+  CA
+  REST
+}
+
+model ConsentRecord {
+  id              String        @id
+  /// Exactly one of userId / anonId is set. Logged-in users get a userId-keyed
+  /// record; anonymous visitors get an anonId-keyed one. On login we copy the
+  /// anon record over (or keep the user record if both exist).
+  userId          String?       @unique
+  anonId          String?       @unique
+  region          ConsentRegion
+  /// Bumped when the cookie policy / privacy policy text materially changes;
+  /// stale records can be detected and re-prompted by the banner.
+  policyVersion   String
+  essential       Boolean       @default(true)
+  functional      Boolean       @default(false)
+  analytics       Boolean       @default(false)
+  marketing       Boolean       @default(false)
+  marketingEmail  Boolean       @default(false)
+  marketingSms    Boolean       @default(false)
+  marketingPush   Boolean       @default(false)
+  source          ConsentSource
+  ipHash          String?
+  userAgent       String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  user            User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events          ConsentEvent[]
+}
+
+model ConsentEvent {
+  id            String        @id
+  consentId     String
+  userId        String?
+  anonId        String?
+  source        ConsentSource
+  region        ConsentRegion
+  policyVersion String
+  before        Json
+  after         Json
+  ipHash        String?
+  userAgent     String?
+  createdAt     DateTime      @default(now())
+  consent       ConsentRecord @relation(fields: [consentId], references: [id], onDelete: Cascade)
+
+  @@index([consentId, createdAt])
+  @@index([userId, createdAt])
+}
+
+model UnsubscribeToken {
+  id          String    @id
+  userId      String
+  /// sha256 of the opaque token handed to the user via the email link.
+  tokenHash   String    @unique
+  /// Which preference column to flip false on consumption. Today the only
+  /// value emitted by the email module is "marketingEmail", but the column
+  /// is extensible so we can ship "marketingSms" / "marketingPush" later.
+  category    String
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+// ───────────────────────── Phase 33: WebAuthn / Passkeys ─────────────────────────
+
+enum WebAuthnCredentialTransport {
+  USB
+  NFC
+  BLE
+  INTERNAL
+  HYBRID
+}
+
+model WebAuthnCredential {
+  id            String                          @id
+  userId        String
+  /// base64url credentialId (the authenticator-generated handle).
+  credentialId  String                          @unique
+  /// COSE-format public key (CBOR-encoded), stored as base64url. We re-parse
+  /// on every assertion verify — small, deterministic, and avoids JWK conversion drift.
+  publicKey     String
+  /// COSE algorithm identifier: -7 ES256, -257 RS256, -8 EdDSA.
+  algorithm     Int
+  /// Monotonic counter from the authenticator. We reject any assertion that
+  /// doesn't strictly increase this — except authenticators that always emit 0
+  /// (Apple platform passkeys), which we detect via the special "both zero" rule.
+  signCount     Int                             @default(0)
+  /// User-friendly label shown on /account/security.
+  label         String
+  transports    WebAuthnCredentialTransport[]
+  /// rk=true at registration. Required for username-less / discoverable login.
+  discoverable  Boolean                         @default(false)
+  /// User-verification was performed at registration (Touch ID, PIN, etc).
+  userVerified  Boolean                         @default(false)
+  /// 16-byte AAGUID (hex) of the authenticator. Useful for diagnostics
+  /// and future strong-attestation policies.
+  aaguid        String?
+  lastUsedAt    DateTime?
+  createdAt     DateTime                        @default(now())
+  updatedAt     DateTime                        @updatedAt
+  user          User                            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ───────────────────────── Phase 34: Account Recovery ─────────────────────────
+
+enum RecoveryRequestStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  EXPIRED
+}
+
+model PasswordResetToken {
+  id         String    @id
+  userId     String
+  /// sha256 of the opaque token in the reset email link.
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  consumedAt DateTime?
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime  @default(now())
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model AccountRecoveryRequest {
+  id                String                @id
+  userId            String
+  status            RecoveryRequestStatus @default(PENDING)
+  /// sha256 of the "yes, continue recovery" link token.
+  confirmTokenHash  String                @unique
+  /// sha256 of the "this wasn't me / cancel" link token. Works at any stage.
+  cancelTokenHash   String                @unique
+  /// sha256 of the token used to actually finish recovery once eligible.
+  completeTokenHash String                @unique
+  requestedAt       DateTime              @default(now())
+  confirmedAt       DateTime?
+  /// confirmedAt + 72h. 2FA cannot be removed before this instant.
+  eligibleAt        DateTime?
+  completedAt       DateTime?
+  cancelledAt       DateTime?
+  /// Number of reminder emails sent during the CONFIRMED waiting window.
+  remindersSent     Int                   @default(0)
+  ip                String?
+  userAgent         String?
+  user              User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status, eligibleAt])
+}
+
+// ───────────────────────── Phase 35: Gift Cards ─────────────────────────
+
+enum GiftCardStatus {
+  PENDING_PAYMENT
+  ACTIVE
+  REDEEMED
+  VOID
+  EXPIRED
+}
+
+model GiftCard {
+  id                 String         @id
+  /// Human-friendly code, e.g. ONS-7F3K-9QMP-24XY. Stored uppercase; redeem
+  /// matches case-insensitively after normalization.
+  code               String         @unique
+  status             GiftCardStatus @default(PENDING_PAYMENT)
+  currency           String         @default("USD")
+  initialAmountMinor Int
+  /// Remaining redeemable balance — equals initial until redeemed, then 0.
+  balanceMinor       Int
+  /// null for admin-issued promotional cards.
+  purchaserUserId    String?
+  recipientEmail     String
+  recipientName      String?
+  senderName         String?
+  message            String?
+  /// Scheduled send. null = deliver as soon as payment captures.
+  deliverAt          DateTime?
+  deliveredAt        DateTime?
+  redeemedByUserId   String?
+  redeemedAt         DateTime?
+  /// Stripe PaymentIntent id for buyer purchases.
+  paymentRef         String?
+  /// null = no expiry (the compliant default for paid cards).
+  expiresAt          DateTime?
+  issuedByAdminId    String?
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  purchaser User? @relation("GiftCardPurchaser", fields: [purchaserUserId], references: [id], onDelete: SetNull)
+  redeemer  User? @relation("GiftCardRedeemer", fields: [redeemedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([status, deliverAt])
+  @@index([purchaserUserId])
+  @@index([recipientEmail])
+}
+
+

@@ -1,0 +1,30 @@
+# Sample production overrides. Copy to values-production.yaml and tweak per environment.
+
+global:
+  imageTag: "v1.0.0"
+
+api:
+  replicas: 5
+  hpa:
+    minReplicas: 5
+    maxReplicas: 30
+  env:
+    NODE_ENV: production
+    PAYOUTS_AUTO_RUN: "0"
+    FX_AUTO_REFRESH: "1"
+    LOG_LEVEL: info
+
+buyer:
+  replicas: 8
+  hpa:
+    minReplicas: 8
+    maxReplicas: 50
+
+ingress:
+  apiHostname: api.onsective.com
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/proxy-body-size: 10m
+    nginx.ingress.kubernetes.io/server-snippet: |
+      add_header X-Frame-Options DENY;
+      add_header X-Content-Type-Options nosniff;

@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["TEAMID.com.onsective.app"],
+        "components": [
+          { "/": "/p/*", "comment": "PDP" },
+          { "/": "/orders/*", "comment": "Order detail" },
+          { "/": "/cart", "comment": "Cart" }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "home": "Главная",
+    "search": "Поиск",
+    "cart": "Корзина",
+    "account": "Аккаунт",
+    "orders": "Заказы",
+    "downloads": "Загрузки",
+    "signIn": "Войти",
+    "signOut": "Выйти"
+  },
+  "home": {
+    "heroTagline": "Премиальный глобальный маркетплейс",
+    "browseCategories": "Категории",
+    "shopAll": "Все товары"
+  },
+  "pdp": {
+    "soldBy": "Продавец",
+    "inStock": "в наличии: {qty}",
+    "addToCart": "В корзину",
+    "buyNow": "Купить сейчас",
+    "qty": "Кол-во",
+    "ageGateTitle": "Требуется подтверждение возраста",
+    "ageGateBody": "{title} доступно только покупателям {minAge}+. Введите дату рождения, чтобы продолжить.",
+    "ageGateButton": "Мне есть {minAge} или больше",
+    "ageGateLeave": "Покинуть страницу",
+    "ageGateDob": "Дата рождения",
+    "restrictedRegion": "Ограничения в некоторых регионах",
+    "digitalDelivery": "Цифровая доставка",
+    "ageOnly": "Только {minAge}+"
+  },
+  "cart": {
+    "title": "Корзина",
+    "empty": "Корзина пуста.",
+    "subtotal": "Промежуточный итог",
+    "checkout": "Оформить заказ"
+  },
+  "checkout": {
+    "title": "Оформление заказа",
+    "shipping": "Доставка",
+    "billing": "Платёж",
+    "payment": "Оплата",
+    "placeOrder": "Подтвердить заказ",
+    "tax": "НДС",
+    "total": "Итого",
+    "summary": "Состав заказа",
+    "convertedFrom": "Цена в каталоге {amount}"
+  },
+  "downloads": {
+    "title": "Цифровые загрузки",
+    "intro": "Лицензионные ключи и загрузки купленных цифровых товаров.",
+    "noneYet": "Пока нет цифровых поставок.",
+    "revealKey": "Показать ключ",
+    "download": "Скачать",
+    "expired": "Срок истёк",
+    "remaining": "Осталось {remaining} из {limit} загрузок",
+    "pendingSeller": "Ожидает продавца"
+  },
+  "errors": {
+    "checkoutFailed": "Ошибка оформления",
+    "ageRequired": "Сначала подтвердите свой возраст.",
+    "regionRestricted": "Этот товар нельзя отправить в ваш регион.",
+    "outOfStock": "Недостаточно товара на складе.",
+    "noLicenseKeys": "Лицензионные ключи временно недоступны."
+  },
+  "currency": {
+    "label": "Валюта",
+    "convertedHint": "Приблизительно — конвертировано из {listing}"
+  },
+  "locale": {
+    "label": "Язык"
+  }
+}

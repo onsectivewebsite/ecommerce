@@ -1,0 +1,53 @@
+/* Onsective design-system component layer.
+ *
+ * Tailwind base/components/utilities directives are declared in each
+ * consuming app's globals.css so that the directives run inside that
+ * app's PostCSS + Tailwind pipeline. This file contributes only the
+ * shared component classes used across portals.
+ */
+
+@layer base {
+  :root {
+    color-scheme: dark light;
+  }
+  html {
+    font-feature-settings: 'cv11', 'ss01', 'ss02';
+  }
+  body {
+    @apply bg-ink-950 text-ink-100 antialiased;
+  }
+  ::selection {
+    @apply bg-accent-500/40 text-white;
+  }
+  a {
+    @apply text-accent-300 hover:text-accent-200 transition-colors;
+  }
+}
+
+@layer components {
+  .ons-card {
+    @apply rounded-2xl bg-ink-900/60 backdrop-blur border border-ink-700/60 shadow-elev2 p-6;
+  }
+  .ons-input {
+    @apply w-full rounded-xl bg-ink-900 border border-ink-700 px-3.5 py-2.5
+           text-ink-50 placeholder-ink-400
+           focus:outline-none focus:ring-2 focus:ring-accent-500/60 focus:border-accent-500
+           transition;
+  }
+  .ons-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl font-medium
+           px-4 py-2.5 transition active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .ons-btn-primary {
+    @apply ons-btn bg-accent-500 hover:bg-accent-400 text-white shadow-glow;
+  }
+  .ons-btn-secondary {
+    @apply ons-btn bg-ink-800 hover:bg-ink-700 text-ink-50 border border-ink-700;
+  }
+  .ons-btn-ghost {
+    @apply ons-btn bg-transparent hover:bg-ink-800 text-ink-100;
+  }
+  .ons-badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+}

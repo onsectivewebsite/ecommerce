@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "home": "首页",
+    "search": "搜索",
+    "cart": "购物车",
+    "account": "账户",
+    "orders": "订单",
+    "downloads": "下载",
+    "signIn": "登录",
+    "signOut": "登出"
+  },
+  "home": {
+    "heroTagline": "高端全球市场",
+    "browseCategories": "浏览分类",
+    "shopAll": "全部商品"
+  },
+  "pdp": {
+    "soldBy": "卖家",
+    "inStock": "库存: {qty}",
+    "addToCart": "加入购物车",
+    "buyNow": "立即购买",
+    "qty": "数量",
+    "ageGateTitle": "需要年龄验证",
+    "ageGateBody": "{title} 仅限 {minAge} 岁及以上的买家购买。请输入您的出生日期以继续。",
+    "ageGateButton": "我已年满 {minAge} 岁",
+    "ageGateLeave": "离开页面",
+    "ageGateDob": "出生日期",
+    "restrictedRegion": "部分地区受限",
+    "digitalDelivery": "数字交付",
+    "ageOnly": "仅限 {minAge}+"
+  },
+  "cart": {
+    "title": "购物车",
+    "empty": "您的购物车为空。",
+    "subtotal": "小计",
+    "checkout": "结算"
+  },
+  "checkout": {
+    "title": "结算",
+    "shipping": "配送",
+    "billing": "账单",
+    "payment": "支付",
+    "placeOrder": "提交订单",
+    "tax": "税费",
+    "total": "总计",
+    "summary": "订单摘要",
+    "convertedFrom": "标价 {amount}"
+  },
+  "downloads": {
+    "title": "数字下载",
+    "intro": "您购买的数字商品的许可证密钥与下载。",
+    "noneYet": "暂无数字交付。",
+    "revealKey": "显示密钥",
+    "download": "下载",
+    "expired": "已过期",
+    "remaining": "剩余 {remaining}/{limit} 次下载",
+    "pendingSeller": "等待卖家处理"
+  },
+  "errors": {
+    "checkoutFailed": "结算失败",
+    "ageRequired": "请先验证您的年龄。",
+    "regionRestricted": "该商品无法配送至您的地区。",
+    "outOfStock": "库存不足。",
+    "noLicenseKeys": "此商品的许可证密钥暂时不可用。"
+  },
+  "currency": {
+    "label": "货币",
+    "convertedHint": "约 — 由 {listing} 转换"
+  },
+  "locale": {
+    "label": "语言"
+  }
+}

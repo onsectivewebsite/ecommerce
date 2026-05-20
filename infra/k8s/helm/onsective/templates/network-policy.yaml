@@ -1,0 +1,58 @@
+# Lock down the data plane: only the api pods can reach postgres / redis / minio.
+# Web apps speak only to the api Service. Cluster DNS is allowed for everything.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: api-data-egress
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: api
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector:
+            matchLabels: { app.kubernetes.io/name: postgres }
+      ports: [{ protocol: TCP, port: 5432 }]
+    - to:
+        - podSelector:
+            matchLabels: { app.kubernetes.io/name: redis }
+      ports: [{ protocol: TCP, port: 6379 }]
+    - to:
+        - podSelector:
+            matchLabels: { app.kubernetes.io/name: minio }
+      ports: [{ protocol: TCP, port: 9000 }]
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels: { k8s-app: kube-dns }
+      ports:
+        - { protocol: UDP, port: 53 }
+        - { protocol: TCP, port: 53 }
+    # Stripe / carrier APIs egress — allow https out anywhere.
+    - to:
+        - ipBlock: { cidr: 0.0.0.0/0, except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16] }
+      ports: [{ protocol: TCP, port: 443 }]
+---
+# Web apps can only egress to the api Service + DNS.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: web-apps-egress
+spec:
+  podSelector:
+    matchExpressions:
+      - { key: app.kubernetes.io/name, operator: In, values: [buyer, seller, admin, shipping] }
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - podSelector:
+            matchLabels: { app.kubernetes.io/name: api }
+      ports: [{ protocol: TCP, port: 4000 }]
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels: { k8s-app: kube-dns }
+      ports:
+        - { protocol: UDP, port: 53 }
+        - { protocol: TCP, port: 53 }

@@ -1,0 +1,74 @@
+name: perf-budget
+
+on:
+  pull_request:
+    paths:
+      - "apps/buyer-web/**"
+      - "packages/ui/**"
+      - "packages/i18n/**"
+      - ".lighthouserc.cjs"
+  workflow_dispatch: {}
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: onsective
+          POSTGRES_USER: onsective
+          POSTGRES_DB: onsective
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U onsective"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://onsective:onsective@localhost:5432/onsective
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: ci-only-not-secret
+      PUBLIC_API_URL: http://localhost:4000
+      NODE_ENV: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 9 }
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "pnpm"
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Generate Prisma client + migrate
+        run: |
+          pnpm --filter @onsective/api exec prisma generate
+          pnpm --filter @onsective/api exec prisma migrate deploy
+      - name: Build
+        run: pnpm build
+      - name: Start api
+        run: |
+          pnpm --filter @onsective/api exec node dist/main.js &
+          for i in {1..30}; do
+            curl -fsS http://localhost:4000/health && exit 0
+            sleep 1
+          done
+          echo "api failed to start" && exit 1
+      - name: Start buyer-web
+        run: |
+          pnpm --filter @onsective/buyer-web exec next start -p 3000 &
+          for i in {1..30}; do
+            curl -fsS http://localhost:3000/ && exit 0
+            sleep 1
+          done
+          echo "buyer-web failed to start" && exit 1
+      - name: Run Lighthouse CI
+        run: |
+          npm install -g @lhci/cli@0.13.x
+          lhci autorun --config=.lighthouserc.cjs

@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "search": "Recherche",
+    "cart": "Panier",
+    "account": "Compte",
+    "orders": "Commandes",
+    "downloads": "Téléchargements",
+    "signIn": "Se connecter",
+    "signOut": "Se déconnecter"
+  },
+  "home": {
+    "heroTagline": "Une place de marché mondiale haut de gamme",
+    "browseCategories": "Parcourir les catégories",
+    "shopAll": "Voir tout"
+  },
+  "pdp": {
+    "soldBy": "Vendu par",
+    "inStock": "en stock : {qty}",
+    "addToCart": "Ajouter au panier",
+    "buyNow": "Acheter",
+    "qty": "Qté",
+    "ageGateTitle": "Vérification de l'âge requise",
+    "ageGateBody": "{title} est réservé aux acheteurs de {minAge} ans et plus. Saisissez votre date de naissance pour continuer.",
+    "ageGateButton": "J'ai {minAge} ans ou plus",
+    "ageGateLeave": "Quitter la page",
+    "ageGateDob": "Date de naissance",
+    "restrictedRegion": "Restrictions régionales",
+    "digitalDelivery": "Livraison numérique",
+    "ageOnly": "Réservé aux {minAge}+"
+  },
+  "cart": {
+    "title": "Panier",
+    "empty": "Votre panier est vide.",
+    "subtotal": "Sous-total",
+    "checkout": "Commander"
+  },
+  "checkout": {
+    "title": "Commande",
+    "shipping": "Livraison",
+    "billing": "Facturation",
+    "payment": "Paiement",
+    "placeOrder": "Passer la commande",
+    "tax": "TVA",
+    "total": "Total",
+    "summary": "Récapitulatif",
+    "convertedFrom": "Prix affiché {amount}"
+  },
+  "downloads": {
+    "title": "Téléchargements numériques",
+    "intro": "Clés de licence et téléchargements des biens numériques achetés.",
+    "noneYet": "Aucune livraison numérique pour le moment.",
+    "revealKey": "Afficher la clé",
+    "download": "Télécharger",
+    "expired": "Expiré",
+    "remaining": "{remaining} sur {limit} téléchargements restants",
+    "pendingSeller": "En attente du vendeur"
+  },
+  "errors": {
+    "checkoutFailed": "Échec de la commande",
+    "ageRequired": "Veuillez d'abord vérifier votre âge.",
+    "regionRestricted": "Cet article ne peut pas être expédié dans votre région.",
+    "outOfStock": "Stock insuffisant.",
+    "noLicenseKeys": "Les clés de licence sont temporairement indisponibles."
+  },
+  "currency": {
+    "label": "Devise",
+    "convertedHint": "Approx. — converti depuis {listing}"
+  },
+  "locale": {
+    "label": "Langue"
+  }
+}

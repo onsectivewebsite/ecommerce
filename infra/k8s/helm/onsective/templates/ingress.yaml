@@ -1,0 +1,29 @@
+{{- $ing := .Values.ingress -}}
+{{- range $name, $svc := dict "api" (dict "host" $ing.apiHostname "service" "onsective-api") "buyer" (dict "host" .Values.buyer.hostname "service" "onsective-buyer") "seller" (dict "host" .Values.seller.hostname "service" "onsective-seller") "admin" (dict "host" .Values.admin.hostname "service" "onsective-admin") "shipping" (dict "host" .Values.shipping.hostname "service" "onsective-shipping") }}
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: onsective-{{ $name }}
+  annotations:
+    {{- range $k, $v := $ing.annotations }}
+    {{ $k }}: {{ $v | quote }}
+    {{- end }}
+spec:
+  ingressClassName: {{ $ing.className }}
+  tls:
+    - hosts:
+        - {{ $svc.host }}
+      secretName: onsective-{{ $name }}{{ $ing.tlsSecretSuffix }}
+  rules:
+    - host: {{ $svc.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $svc.service }}
+                port:
+                  number: 80
+{{- end }}

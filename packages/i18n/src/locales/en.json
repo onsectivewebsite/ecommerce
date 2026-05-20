@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "home": "Home",
+    "search": "Search",
+    "cart": "Cart",
+    "account": "Account",
+    "orders": "Orders",
+    "downloads": "Downloads",
+    "signIn": "Sign in",
+    "signOut": "Sign out"
+  },
+  "home": {
+    "heroTagline": "A premium global marketplace",
+    "browseCategories": "Browse categories",
+    "shopAll": "Shop all"
+  },
+  "pdp": {
+    "soldBy": "Sold by",
+    "inStock": "in stock: {qty}",
+    "addToCart": "Add to cart",
+    "buyNow": "Buy now",
+    "qty": "Qty",
+    "ageGateTitle": "Age verification required",
+    "ageGateBody": "{title} is restricted to buyers aged {minAge}+. Enter your date of birth to continue.",
+    "ageGateButton": "I am {minAge} or older",
+    "ageGateLeave": "Leave page",
+    "ageGateDob": "Date of birth",
+    "restrictedRegion": "Some regions restricted",
+    "digitalDelivery": "Digital delivery",
+    "ageOnly": "{minAge}+ only"
+  },
+  "cart": {
+    "title": "Cart",
+    "empty": "Your cart is empty.",
+    "subtotal": "Subtotal",
+    "checkout": "Checkout"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "shipping": "Shipping",
+    "billing": "Billing",
+    "payment": "Payment",
+    "placeOrder": "Place order",
+    "tax": "Tax",
+    "total": "Total",
+    "summary": "Order summary",
+    "convertedFrom": "Listed at {amount}"
+  },
+  "downloads": {
+    "title": "Digital downloads",
+    "intro": "License keys and downloads for digital goods you have purchased.",
+    "noneYet": "No digital deliveries yet.",
+    "revealKey": "Reveal key",
+    "download": "Download",
+    "expired": "Expired",
+    "remaining": "{remaining} of {limit} downloads left",
+    "pendingSeller": "Pending seller"
+  },
+  "errors": {
+    "checkoutFailed": "Checkout failed",
+    "ageRequired": "Please verify your age first.",
+    "regionRestricted": "This item cannot be shipped to your region.",
+    "outOfStock": "Not enough stock available.",
+    "noLicenseKeys": "License keys are temporarily unavailable for this item."
+  },
+  "currency": {
+    "label": "Currency",
+    "convertedHint": "Approx. — converted from {listing}"
+  },
+  "locale": {
+    "label": "Language"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "expo": {
+    "name": "Onsective",
+    "slug": "onsective",
+    "scheme": "onsective",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "platforms": ["ios", "android"],
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0a0b0f"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.onsective.app",
+      "associatedDomains": [
+        "applinks:shop.onsective.com",
+        "applinks:onsective.com"
+      ],
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "package": "com.onsective.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0a0b0f"
+      },
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            { "scheme": "https", "host": "shop.onsective.com", "pathPrefix": "/p" },
+            { "scheme": "https", "host": "shop.onsective.com", "pathPrefix": "/orders" },
+            { "scheme": "onsective" }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#cb6c2a",
+          "androidMode": "default"
+        }
+      ],
+      [
+        "@stripe/stripe-react-native",
+        {
+          "merchantIdentifier": "merchant.com.onsective.app",
+          "enableGooglePay": true
+        }
+      ]
+    ],
+    "extra": {
+      "apiUrl": "https://api.onsective.com",
+      "stripePublishableKey": "",
+      "eas": { "projectId": "" }
+    }
+  }
+}
