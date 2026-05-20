@@ -152,7 +152,7 @@ function buildRsaKey(modulus: Buffer, exponent: Buffer): KeyObject {
 
 function derInteger(raw: Buffer): Buffer {
   // INTEGER: prepend 0x00 if high bit is set so it's interpreted as positive.
-  const needsPad = (raw[0] & 0x80) !== 0;
+  const needsPad = ((raw[0] ?? 0) & 0x80) !== 0;
   const body = needsPad ? Buffer.concat([Buffer.from([0x00]), raw]) : raw;
   return wrap(0x02, body);
 }

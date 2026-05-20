@@ -36,7 +36,7 @@ export function parseAuthData(buf: Buffer): AuthData {
     throw new Error(`authData: too short (${buf.length})`);
   }
   const rpIdHash = Buffer.from(buf.subarray(0, 32));
-  const flags = buf[32];
+  const flags = buf[32]!; // guarded by the length check above
   const signCount = buf.readUInt32BE(33);
 
   const out: AuthData = { rpIdHash, flags, signCount };

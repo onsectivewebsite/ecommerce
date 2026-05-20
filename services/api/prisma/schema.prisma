@@ -1476,10 +1476,8 @@ model Promotion {
   @@index([sellerId, status])
 }
 
-/**
- * Optional restriction of a promotion to specific products. Empty set means
- * the promotion applies to all of the seller's products (or platform-wide).
- */
+ /// Optional restriction of a promotion to specific products. Empty set means
+ /// the promotion applies to all of the seller's products (or platform-wide).
 model PromotionProductScope {
   promotionId String
   productId   String
@@ -1520,11 +1518,9 @@ model WalletAccount {
   transactions WalletTransaction[]
 }
 
-/**
- * Append-only ledger. `amountMinor` is signed: positive for credits,
- * negative for debits. `balanceAfterMinor` is cached for fast statements
- * and asserted on write to catch concurrent-write bugs.
- */
+ /// Append-only ledger. `amountMinor` is signed: positive for credits,
+ /// negative for debits. `balanceAfterMinor` is cached for fast statements
+ /// and asserted on write to catch concurrent-write bugs.
 model WalletTransaction {
   id                String        @id
   walletId          String
@@ -1575,10 +1571,8 @@ model WishlistItem {
   @@index([productId])
 }
 
-/**
- * Tracks which nudge stage we've already sent for a given cart so the
- * scheduler is idempotent across reruns.
- */
+ /// Tracks which nudge stage we've already sent for a given cart so the
+ /// scheduler is idempotent across reruns.
 model AbandonedCartNudge {
   id        String                   @id
   cartId    String
@@ -1624,12 +1618,10 @@ enum ForecastSeverity {
   CRITICAL
 }
 
-/**
- * Per-user opt-in/out for each notification category. A missing row means
- * everything is enabled (Phase 11 default-on policy). One row per user
- * stores a JSON map of category → { email: bool, push: bool } so we don't
- * have to add a column per category.
- */
+ /// Per-user opt-in/out for each notification category. A missing row means
+ /// everything is enabled (Phase 11 default-on policy). One row per user
+ /// stores a JSON map of category → { email: bool, push: bool } so we don't
+ /// have to add a column per category.
 model NotificationPreference {
   id        String   @id
   userId    String   @unique
@@ -1642,11 +1634,9 @@ model NotificationPreference {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-/**
- * Append-only event store for seller analytics. Aggregates are computed
- * at read time; partition + materialized-view migration deferred until
- * volume justifies it.
- */
+ /// Append-only event store for seller analytics. Aggregates are computed
+ /// at read time; partition + materialized-view migration deferred until
+ /// volume justifies it.
 model ProductEvent {
   id          String           @id
   productId   String
@@ -1750,11 +1740,9 @@ enum StepUpStatus {
   EXPIRED
 }
 
-/**
- * Per-order risk decision. One row per Order — if we re-score (e.g., after
- * payment capture) we update in place rather than appending. The rule hits
- * live in a sibling table so reads can filter without parsing JSON.
- */
+ /// Per-order risk decision. One row per Order — if we re-score (e.g., after
+ /// payment capture) we update in place rather than appending. The rule hits
+ /// live in a sibling table so reads can filter without parsing JSON.
 model RiskAssessment {
   id        String       @id
   orderId   String       @unique
@@ -1801,12 +1789,10 @@ model OrderHold {
   @@index([status, createdAt])
 }
 
-/**
- * Captures every login (and refresh that yields a new access token). We
- * never store raw IPs — `hashedIp` is sha256(salt + ip) with a per-deploy
- * salt. UA fingerprint is a hash of normalized user-agent, used to detect
- * "new device" anomalies.
- */
+ /// Captures every login (and refresh that yields a new access token). We
+ /// never store raw IPs — `hashedIp` is sha256(salt + ip) with a per-deploy
+ /// salt. UA fingerprint is a hash of normalized user-agent, used to detect
+ /// "new device" anomalies.
 model LoginEvent {
   id           String       @id
   userId       String
@@ -1824,11 +1810,9 @@ model LoginEvent {
   @@index([uaFingerprint])
 }
 
-/**
- * One-time email-token step-up. Issued for sensitive actions; consumed on
- * verification. `purpose` is a free-form key the caller uses to scope the
- * challenge to the action (e.g., `webhook.rotate:<endpointId>`).
- */
+ /// One-time email-token step-up. Issued for sensitive actions; consumed on
+ /// verification. `purpose` is a free-form key the caller uses to scope the
+ /// challenge to the action (e.g., `webhook.rotate:<endpointId>`).
 model StepUpChallenge {
   id        String       @id
   userId    String
@@ -1844,11 +1828,9 @@ model StepUpChallenge {
   @@index([userId, purpose, status])
 }
 
-/**
- * Daily roll-up of seller risk + quality metrics. We never compute health on
- * read — too expensive and we want a trend chart. Scheduler is the only
- * writer; reads pull the most recent row.
- */
+ /// Daily roll-up of seller risk + quality metrics. We never compute health on
+ /// read — too expensive and we want a trend chart. Scheduler is the only
+ /// writer; reads pull the most recent row.
 model SellerHealthSnapshot {
   id                 String   @id
   sellerId           String
@@ -1930,10 +1912,8 @@ model WarehouseZone {
   @@index([warehouseId])
 }
 
-/**
- * Per-warehouse stock. Source of truth for inventory; the legacy
- * ProductVariant.inventoryQty is a denormalized rollup over all stocks.
- */
+ /// Per-warehouse stock. Source of truth for inventory; the legacy
+ /// ProductVariant.inventoryQty is a denormalized rollup over all stocks.
 model InventoryStock {
   id              String   @id
   variantId       String
@@ -1988,11 +1968,9 @@ model InboundShipmentItem {
   @@unique([shipmentId, variantId])
 }
 
-/**
- * Daily storage accrual ledger. The scheduler writes one row per
- * (seller, day, warehouse) capturing cm³·days stored and the accrued
- * fee. Monthly billing runs sum these and charge the seller.
- */
+ /// Daily storage accrual ledger. The scheduler writes one row per
+ /// (seller, day, warehouse) capturing cm³·days stored and the accrued
+ /// fee. Monthly billing runs sum these and charge the seller.
 model StorageBillingRun {
   id           String   @id
   sellerId     String
@@ -2097,9 +2075,7 @@ model Brand {
   @@index([isPublished])
 }
 
-/**
- * Curated product list on a brand storefront. A brand can have many.
- */
+ /// Curated product list on a brand storefront. A brand can have many.
 model BrandCollection {
   id        String   @id
   brandId   String
@@ -2130,11 +2106,9 @@ model BrandCollectionProduct {
   @@index([collectionId, position])
 }
 
-/**
- * One row per (seller, brand, category). Required for any seller publishing
- * a NEW_GENUINE listing of that brand in that category. Refurb listings
- * don't need this — they need a CERTIFIED_REFURBISHER cert instead.
- */
+ /// One row per (seller, brand, category). Required for any seller publishing
+ /// a NEW_GENUINE listing of that brand in that category. Refurb listings
+ /// don't need this — they need a CERTIFIED_REFURBISHER cert instead.
 model BrandAuthorization {
   id          String   @id
   sellerId    String
@@ -2175,12 +2149,10 @@ model SellerCertification {
   @@index([expiresAt])
 }
 
-/**
- * Per-unit refurbished listing. A REFURB_GRADE_* product has zero
- * ProductVariant rows — each physical unit is one RefurbUnit. Cart +
- * checkout treat it as a singleton variant; the SOLD transition is
- * atomic so two buyers cannot race for the same physical unit.
- */
+ /// Per-unit refurbished listing. A REFURB_GRADE_* product has zero
+ /// ProductVariant rows — each physical unit is one RefurbUnit. Cart +
+ /// checkout treat it as a singleton variant; the SOLD transition is
+ /// atomic so two buyers cannot race for the same physical unit.
 model RefurbUnit {
   id              String                 @id
   productId       String
@@ -2229,11 +2201,9 @@ model RefurbUnit {
   @@index([serialNumber])
 }
 
-/**
- * Mandatory before stock goes live. One row per received unit (or per
- * inbound line for NEW_GENUINE pooled inventory). PASS → live; FAIL →
- * QUARANTINED + seller health hit; NEEDS_REVIEW → admin queue.
- */
+ /// Mandatory before stock goes live. One row per received unit (or per
+ /// inbound line for NEW_GENUINE pooled inventory). PASS → live; FAIL →
+ /// QUARANTINED + seller health hit; NEEDS_REVIEW → admin queue.
 model AuthenticityCheck {
   id            String              @id
   inboundItemId String?
@@ -2252,10 +2222,8 @@ model AuthenticityCheck {
   @@index([serialNumber])
 }
 
-/**
- * Defect-driven claim distinct from a Phase 9 Return. Different SLA,
- * different burden of proof, different financial path.
- */
+ /// Defect-driven claim distinct from a Phase 9 Return. Different SLA,
+ /// different burden of proof, different financial path.
 model WarrantyClaim {
   id             String              @id
   orderItemId    String
@@ -2309,11 +2277,9 @@ enum TradeInPayoutMethod {
   STRIPE
 }
 
-/**
- * One row per (sourceProduct) describing what we'll buy back and at what
- * payout. Always points at a destination refurb product where graded units
- * are re-listed as RefurbUnits.
- */
+ /// One row per (sourceProduct) describing what we'll buy back and at what
+ /// payout. Always points at a destination refurb product where graded units
+ /// are re-listed as RefurbUnits.
 model TradeInModel {
   id                    String   @id
   sourceProductId       String   @unique
@@ -2340,11 +2306,9 @@ model TradeInModel {
   @@index([enabled])
 }
 
-/**
- * A trade-in order placed by a buyer. Quotes themselves are not stored —
- * they're signed HMAC tokens. Acceptance verifies the signature and writes
- * the offer fields here.
- */
+ /// A trade-in order placed by a buyer. Quotes themselves are not stored —
+ /// they're signed HMAC tokens. Acceptance verifies the signature and writes
+ /// the offer fields here.
 model TradeInOrder {
   id                 String              @id
   buyerUserId        String
@@ -2385,10 +2349,8 @@ model TradeInOrder {
   @@index([status, createdAt])
 }
 
-/**
- * Recorded at the receiving warehouse when the trade-in arrives. The
- * grading step that follows reads this to make the call.
- */
+ /// Recorded at the receiving warehouse when the trade-in arrives. The
+ /// grading step that follows reads this to make the call.
 model TradeInIntake {
   id              String   @id
   orderId         String   @unique
@@ -2401,10 +2363,8 @@ model TradeInIntake {
   order TradeInOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
-/**
- * Final grading decision. PAID transitions happen after this writes.
- * If actualGrade < declaredGrade, payoutMinor reflects the recomputed offer.
- */
+ /// Final grading decision. PAID transitions happen after this writes.
+ /// If actualGrade < declaredGrade, payoutMinor reflects the recomputed offer.
 model TradeInGrading {
   id              String       @id
   orderId         String       @unique
@@ -2428,11 +2388,9 @@ enum AiModelKind {
   COUNTERFEIT
 }
 
-/**
- * Registry of vision models. Multiple rows per kind can coexist; the one
- * with isActive=true is used at suggest-time. Write-once fields preserve
- * the audit trail; only isActive and thresholdConfidence are mutable.
- */
+ /// Registry of vision models. Multiple rows per kind can coexist; the one
+ /// with isActive=true is used at suggest-time. Write-once fields preserve
+ /// the audit trail; only isActive and thresholdConfidence are mutable.
 model AiModel {
   id                  String      @id
   name                String
@@ -2451,13 +2409,11 @@ model AiModel {
   @@index([kind, isActive])
 }
 
-/**
- * Every AI call writes one row. Result JSON carries the typed signals.
- * Recording is best-effort fire-and-forget at the call site, but when
- * persisted this is the audit trail joining AI suggestions to human
- * decisions (via AuthenticityCheck.evidence[].aiInferenceRunId or
- * TradeInGrading.notes referencing the run id).
- */
+ /// Every AI call writes one row. Result JSON carries the typed signals.
+ /// Recording is best-effort fire-and-forget at the call site, but when
+ /// persisted this is the audit trail joining AI suggestions to human
+ /// decisions (via AuthenticityCheck.evidence[].aiInferenceRunId or
+ /// TradeInGrading.notes referencing the run id).
 model AiInferenceRun {
   id            String      @id
   modelId       String
@@ -2481,10 +2437,8 @@ model AiInferenceRun {
   @@index([inputDigest])
 }
 
-/**
- * Accumulated counterfeit signals per serial. A second hit auto-routes the
- * next inbound for the same serial to NEEDS_REVIEW. Reset by admin only.
- */
+ /// Accumulated counterfeit signals per serial. A second hit auto-routes the
+ /// next inbound for the same serial to NEEDS_REVIEW. Reset by admin only.
 model CounterfeitWatchEntry {
   id            String   @id
   serialNumber  String
@@ -2509,11 +2463,9 @@ enum ReturnDisposition {
   RETURN_TO_SELLER
 }
 
-/**
- * One per Return, recorded by warehouse staff when the unit is physically
- * inspected. Decides where the unit goes next. OUTLET_RELIST auto-creates
- * an OPEN_BOX RefurbUnit (still QUARANTINED until the Phase 14 auth gate).
- */
+ /// One per Return, recorded by warehouse staff when the unit is physically
+ /// inspected. Decides where the unit goes next. OUTLET_RELIST auto-creates
+ /// an OPEN_BOX RefurbUnit (still QUARANTINED until the Phase 14 auth gate).
 model ReturnInspection {
   id                   String            @id
   returnId             String            @unique
@@ -2570,11 +2522,9 @@ enum ServiceTicketEventKind {
   COMPLETED
 }
 
-/**
- * Verified third-party repair operator. Service provider, not a seller —
- * separate model so seller-health, payouts, listing fees, and brand-auth
- * gates don't apply.
- */
+ /// Verified third-party repair operator. Service provider, not a seller —
+ /// separate model so seller-health, payouts, listing fees, and brand-auth
+ /// gates don't apply.
 model RepairPartner {
   id                       String              @id
   userId                   String              @unique
@@ -2651,12 +2601,10 @@ enum SustainabilitySubjectKind {
   REPAIR_COMPLETED
 }
 
-/**
- * Per-category baseline. Optional brandId override beats the
- * categorySlug-only row at lookup time. Editable by admin; new events use
- * the new values, but past SustainabilityImpact rows are snapshotted and
- * never recompute.
- */
+ /// Per-category baseline. Optional brandId override beats the
+ /// categorySlug-only row at lookup time. Editable by admin; new events use
+ /// the new values, but past SustainabilityImpact rows are snapshotted and
+ /// never recompute.
 model SustainabilityFactor {
   id                   String   @id
   categorySlug         String
@@ -2672,11 +2620,9 @@ model SustainabilityFactor {
   @@index([categorySlug])
 }
 
-/**
- * One per circular event. subjectId is a loose FK (no Prisma relation)
- * because the source table varies by subjectKind — same pattern as
- * AiInferenceRun.inputRefId.
- */
+ /// One per circular event. subjectId is a loose FK (no Prisma relation)
+ /// because the source table varies by subjectKind — same pattern as
+ /// AiInferenceRun.inputRefId.
 model SustainabilityImpact {
   id                  String                    @id
   subjectKind         SustainabilitySubjectKind
@@ -2706,11 +2652,9 @@ enum SlaBreachKind {
   DELIVER
 }
 
-/**
- * Per-warehouse SLA per destination. region is nullable for the
- * country-default profile. Lookup priority is
- * (warehouseId, country, region) → (warehouseId, country, null) → null.
- */
+ /// Per-warehouse SLA per destination. region is nullable for the
+ /// country-default profile. Lookup priority is
+ /// (warehouseId, country, region) → (warehouseId, country, null) → null.
 model WarehouseSlaProfile {
   id            String   @id
   warehouseId   String
@@ -2728,12 +2672,10 @@ model WarehouseSlaProfile {
   @@index([country, region])
 }
 
-/**
- * Breach event log. The scheduler writes one row when an OrderItem's
- * promisedShipBy/promisedDeliverBy passes without the corresponding
- * completion. Uniqueness on (orderItemId, kind) prevents double-write
- * when the scheduler re-runs.
- */
+ /// Breach event log. The scheduler writes one row when an OrderItem's
+ /// promisedShipBy/promisedDeliverBy passes without the corresponding
+ /// completion. Uniqueness on (orderItemId, kind) prevents double-write
+ /// when the scheduler re-runs.
 model SlaBreach {
   id            String        @id
   orderItemId   String

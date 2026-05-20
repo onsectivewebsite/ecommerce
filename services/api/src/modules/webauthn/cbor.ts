@@ -48,7 +48,7 @@ export function decodeFirst(buf: Buffer, offset = 0): [CborValue, number] {
 
 function decodeAt(buf: Buffer, offset: number): [CborValue, number] {
   if (offset >= buf.length) throw new Error('CBOR: unexpected end of input');
-  const initial = buf[offset];
+  const initial = buf[offset]!; // guarded by the bounds check above
   const major = initial >> 5;
   const minor = initial & 0x1f;
   let [length, next] = readLength(buf, offset + 1, minor);
@@ -116,7 +116,7 @@ function readLength(buf: Buffer, offset: number, minor: number): [number | bigin
   if (minor < 24) return [minor, offset];
   if (minor === 24) {
     if (offset + 1 > buf.length) throw new Error('CBOR: short read for 1-byte length');
-    return [buf[offset], offset + 1];
+    return [buf[offset]!, offset + 1];
   }
   if (minor === 25) {
     if (offset + 2 > buf.length) throw new Error('CBOR: short read for 2-byte length');
