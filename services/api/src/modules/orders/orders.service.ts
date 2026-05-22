@@ -491,6 +491,187 @@ export class OrdersService {
     return this.toDto(order, payment, intent.clientSecret ?? null);
   }
 
+  /**
+   * Phase 37: create a single-variant order for a Subscribe & Save run.
+   * Self-contained — deliberately does NOT reuse the cart-driven `checkout`
+   * path. Charges the buyer's saved card off-session. Returns a result
+   * object (never throws on a business failure) so the scheduler can record
+   * per-run outcomes; a payment failure cancels the stranded order and
+   * restores inventory before returning.
+   */
+  async createSubscriptionOrder(input: {
+    userId: string;
+    variantId: string;
+    qty: number;
+    shippingAddressId: string;
+    discountBps: number;
+  }): Promise<{ ok: boolean; orderId: string | null; reason?: string }> {
+    const variant = await this.prisma.productVariant.findUnique({
+      where: { id: input.variantId },
+      include: { product: { include: { seller: true, category: true } } },
+    });
+    if (!variant) return { ok: false, orderId: null, reason: 'variant_not_found' };
+    const product = variant.product;
+    if (product.status !== 'ACTIVE') return { ok: false, orderId: null, reason: 'product_inactive' };
+    if (product.isDigital) return { ok: false, orderId: null, reason: 'digital_not_supported' };
+    if (variant.inventoryQty < input.qty) return { ok: false, orderId: null, reason: 'out_of_stock' };
+    const seller = product.seller;
+    if (!seller || seller.status !== 'APPROVED') return { ok: false, orderId: null, reason: 'seller_unavailable' };
+
+    let address;
+    try {
+      address = await this.users.getAddressOrThrow(input.userId, input.shippingAddressId);
+    } catch {
+      return { ok: false, orderId: null, reason: 'address_missing' };
+    }
+
+    const buyer = await this.prisma.user.findUnique({ where: { id: input.userId } });
+    if (!buyer) return { ok: false, orderId: null, reason: 'buyer_missing' };
+
+    const fullSubtotal = variant.priceMinor * input.qty;
+    const discountMinor = Math.round((fullSubtotal * input.discountBps) / 10000);
+    const netSubtotal = Math.max(0, fullSubtotal - discountMinor);
+    const shippingMinor = Number(await this.settings.getInt('platform.flat_shipping.minor'));
+
+    const taxResult = await this.tax.resolveForOrder({
+      country: address.country,
+      region: address.region,
+      postalCode: address.postalCode,
+      sellerCountry: seller.originCountry ?? undefined,
+      sellerRegion: seller.originRegion ?? undefined,
+      currency: product.currency,
+      baseMinor: netSubtotal + shippingMinor,
+      items: [{
+        productId: product.id,
+        categorySlug: product.category.slug,
+        lineSubtotalMinor: netSubtotal,
+        qty: input.qty,
+      }],
+    });
+    const taxMinor = taxResult.totalMinor;
+    const totalMinor = netSubtotal + shippingMinor + taxMinor;
+    const commissionBps = seller.commissionBps ?? Number(await this.settings.getInt('platform.commission.bps'));
+    const commissionMinor = Math.round((netSubtotal * commissionBps) / 10000);
+
+    const orderItemId = newId();
+    const order = await this.prisma.$transaction(async (tx) => {
+      await tx.productVariant.update({
+        where: { id: variant.id },
+        data: { inventoryQty: { decrement: input.qty } },
+      });
+      return tx.order.create({
+        data: {
+          id: newId(),
+          userId: input.userId,
+          sellerId: seller.id,
+          status: 'PENDING',
+          currency: product.currency,
+          subtotalMinor: fullSubtotal,
+          shippingMinor,
+          taxMinor,
+          totalMinor,
+          commissionMinor,
+          taxLines: taxResult.lines as unknown as object,
+          promotionLines: (discountMinor > 0
+            ? [{ code: 'SUBSCRIBE_SAVE', kind: 'PERCENT', scope: 'SELLER', amountMinor: discountMinor }]
+            : []) as unknown as object,
+          walletAppliedMinor: 0,
+          shippingAddressId: address.id,
+          billingAddressId: address.id,
+          shippingCarrier: null,
+          shippingService: null,
+          items: {
+            create: [{
+              id: orderItemId,
+              variantId: variant.id,
+              productTitleSnapshot: product.title,
+              variantNameSnapshot: variant.name,
+              unitPriceMinor: variant.priceMinor,
+              qty: input.qty,
+              lineSubtotalMinor: fullSubtotal,
+              refurbUnitId: null,
+              fulfilledFromWarehouseId: null,
+              promisedShipBy: null,
+              promisedDeliverBy: null,
+              slaWindowDays: null,
+            }],
+          },
+        },
+        include: { items: true },
+      });
+    });
+
+    this.events.emit('order.placed', { orderId: order.id });
+
+    const cancelStranded = async () => {
+      await this.prisma.$transaction([
+        this.prisma.order.update({ where: { id: order.id }, data: { status: 'CANCELLED' } }),
+        ...order.items.map((i: any) =>
+          this.prisma.productVariant.update({
+            where: { id: i.variantId },
+            data: { inventoryQty: { increment: i.qty } },
+          }),
+        ),
+      ]);
+    };
+
+    // Shipment row (label purchased after order.paid by ShippingService).
+    const weightGrams = input.qty * (variant.weightGrams || 0) || 500;
+    await this.shipping.createShipmentForOrder(
+      order.id, 'mock' as CarrierCode, 'standard', weightGrams, shippingMinor, product.currency,
+    );
+
+    // Off-session charge against the buyer's default saved card.
+    const gateway = this.payments.resolve('stripe');
+    const method = await this.paymentMethods.defaultFor(input.userId);
+    if (!method) {
+      await cancelStranded();
+      return { ok: false, orderId: null, reason: 'no_payment_method' };
+    }
+
+    let intent: Awaited<ReturnType<typeof gateway.createIntent>>;
+    try {
+      intent = await gateway.createIntent({
+        orderId: order.id,
+        amountMinor: totalMinor,
+        currency: product.currency,
+        buyerEmail: buyer.email,
+        savedPaymentMethodId: method.providerMethodId,
+        savedPaymentCustomerId: method.providerCustomerId,
+      });
+    } catch (e) {
+      await cancelStranded();
+      const reason = e instanceof PaymentAuthenticationRequiredError
+        ? 'authentication_required'
+        : 'payment_failed';
+      return { ok: false, orderId: null, reason };
+    }
+
+    await this.prisma.payment.create({
+      data: {
+        id: newId(),
+        orderId: order.id,
+        provider: gateway.provider,
+        providerRef: intent.providerRef,
+        status: intent.capturedOffSession ? 'CAPTURED' : 'INITIATED',
+        amountMinor: totalMinor,
+        currency: product.currency,
+        raw: (intent.raw ?? {}) as object,
+      },
+    });
+
+    if (!intent.capturedOffSession) {
+      // Off-session must capture synchronously; an unconfirmed intent means
+      // the card needs interaction we can't drive here. Treat as a failure.
+      await cancelStranded();
+      return { ok: false, orderId: null, reason: 'payment_not_captured' };
+    }
+
+    await this.prisma.order.update({ where: { id: order.id }, data: { status: 'PAID' } });
+    this.events.emit('order.paid', { orderId: order.id });
+    return { ok: true, orderId: order.id };
+  }
+
   async listMine(userId: string): Promise<OrderDto[]> {
     const orders = await this.prisma.order.findMany({
       where: { userId },

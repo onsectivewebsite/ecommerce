@@ -33,6 +33,7 @@ import { ExperimentsModule } from './modules/experiments/experiments.module';
 import { ReturnsModule } from './modules/returns/returns.module';
 import { ReviewsModule } from './modules/reviews/reviews.module';
 import { QnaModule } from './modules/qna/qna.module';
+import { AutoshipModule } from './modules/autoship/autoship.module';
 import { MessagingModule } from './modules/messaging/messaging.module';
 import { SupportModule } from './modules/support/support.module';
 import { DisputesModule } from './modules/disputes/disputes.module';
@@ -108,6 +109,7 @@ import { GiftCardsModule } from './modules/gift-cards/gift-cards.module';
     ReturnsModule,
     ReviewsModule,
     QnaModule,
+    AutoshipModule,
     MessagingModule,
     DisputesModule,
     SupportModule,

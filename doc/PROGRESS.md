@@ -370,3 +370,12 @@ Legend: ⚪ planned · 🟡 in progress · 🟢 done
 - [x] Endpoints: /qna/* (public + buyer), /seller/qna, /admin/qna; QnaApi in api-client — 2026-05-20
 - [x] Frontend: buyer-web ProductQna on PDP + /account/qna; seller-web /qna; admin-web /qna; nav + account tile — 2026-05-20
 - [x] `doc/phase-36-debug.md` — 2026-05-20
+
+## Phase 37 — Subscribe & Save ✅
+- [x] `doc/phase-37.md` spec — 2026-05-22
+- [x] Schema (ProductSubscription model + AutoshipStatus enum + relations) — 2026-05-22
+- [x] OrdersService.createSubscriptionOrder (isolated off-session order path, stranded-order rollback) — 2026-05-22
+- [x] AutoshipService (subscribe/list/update/skip/pause/resume/cancel + processDue) + env-gated AutoshipScheduler + dunning — 2026-05-22
+- [x] Endpoints: /autoship/* + /admin/autoship/scan; AutoshipApi in api-client — 2026-05-22
+- [x] Frontend: buyer-web SubscribeSave on PDP + /account/subscriptions + account tile — 2026-05-22
+- [x] `doc/phase-37-debug.md` — 2026-05-22

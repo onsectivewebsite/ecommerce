@@ -5,6 +5,7 @@ import type { RefurbUnitRow } from '@onsective/api-client';
 import { ProductBuyBox } from '@/components/ProductBuyBox';
 import { RecommendationsRow } from '@/components/RecommendationsRow';
 import { ProductQna } from '@/components/ProductQna';
+import { SubscribeSave } from '@/components/SubscribeSave';
 import { TrustBadge } from '@/components/TrustBadge';
 import { RefurbUnitPicker } from '@/components/RefurbUnitPicker';
 import { JsonLd } from '@/components/JsonLd';
@@ -133,6 +134,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
         <div className="space-y-4">
           <ProductBuyBox product={p} />
           {isRefurb && <RefurbUnitPicker product={p} units={refurbUnits} />}
+          <SubscribeSave product={p} />
         </div>
       </div>
       <div className="mt-12 grid md:grid-cols-3 gap-6">

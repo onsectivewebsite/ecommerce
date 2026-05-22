@@ -125,6 +125,7 @@ flowchart LR
 | 34    | Account Recovery                   | Enumeration-safe password reset (1h single-use token, revokes sessions, never bypasses 2FA), 2FA-lockout recovery with 72h waiting window + reminder cadence + one-click cancel, recovery scheduler, admin oversight of in-flight recoveries, buyer-web /forgot-password + /reset-password + /account-recovery flow | ✅ done |
 | 35    | Gift Cards & Store Credit          | Purchasable gift cards via Stripe PaymentIntent (giftCardId webhook routing), redeem-to-wallet with concurrent-claim guard, scheduled delivery, admin promo issuance + void, compliance-aware no-expiry default, buyer-web /gift-cards purchase + /account/gift-cards redeem, admin /gift-cards | ✅ done |
 | 36    | Product Q&A                        | Shopper questions on product pages answered by sellers / verified owners / shoppers, snapshotted author-role badges, helpful-votes (one per user, toggle), asker notification on answer, rate-limited posting, admin moderation; PDP ProductQna component + buyer /account/qna + seller-web /qna + admin-web /qna | ✅ done |
+| 37    | Subscribe & Save                   | Recurring product auto-delivery at a 5% standing discount; isolated OrdersService.createSubscriptionOrder (off-session Stripe charge, stranded-order rollback), env-gated AutoshipScheduler with 2-day-retry / 3-strike dunning, buyer skip/pause/resume/cancel; PDP SubscribeSave block + /account/subscriptions | ✅ done |
 
 ---
 
