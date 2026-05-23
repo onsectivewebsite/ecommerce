@@ -302,6 +302,47 @@ model SavedSearchHit {
   @@index([productId])
 }
 
+/// Phase 41: lifecycle of an admin-curated cross-brand product collection.
+enum CollectionStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+/// Phase 41: admin-curated cross-brand product list with its own landing
+/// page (distinct from brand storefronts and category taxonomy).
+model ProductCollection {
+  id           String           @id
+  slug         String           @unique
+  title        String
+  description  String?
+  heroImageUrl String?
+  status       CollectionStatus @default(DRAFT)
+  position     Int              @default(0)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  items ProductCollectionItem[]
+
+  @@index([status, position])
+}
+
+/// Phase 41: product membership in a collection with an explicit order.
+model ProductCollectionItem {
+  id           String   @id
+  collectionId String
+  productId    String
+  position     Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  collection ProductCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  product    Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([collectionId, productId])
+  @@index([collectionId, position])
+  @@index([productId])
+}
+
 /// Phase 40: severity tone of a storewide banner.
 enum AnnouncementLevel {
   INFO
@@ -633,6 +674,7 @@ model Product {
   questions      ProductQuestion[]
   comparisonItems ComparisonItem[]
   savedSearchHits SavedSearchHit[]
+  collectionItems ProductCollectionItem[]
   wishlistItems  WishlistItem[]
   promotionScopes PromotionProductScope[]
   events         ProductEvent[]

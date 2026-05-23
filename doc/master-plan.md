@@ -129,6 +129,7 @@ flowchart LR
 | 38    | Product Comparison                 | Server-side per-buyer comparison set (cap 4), side-by-side `/compare` table hydrated with price/condition/brand/seller/rating/stock + attribute-union rows, idempotent add; PDP CompareButton + top-bar link | ✅ done |
 | 39    | Saved Searches                     | Persistent buyer search alerts with append-only SavedSearchHit dedupe and one summary notification per scan; Postgres ILIKE matcher (no ES dependency), env-gated hourly scheduler, /search Save-this-search button + /account/saved-searches | ✅ done |
 | 40    | Storewide Announcements            | Admin-driven site-wide banner with scheduled window + INFO/SUCCESS/WARNING tone + optional CTA link; per-buyer dismiss (server-side for signed-in, localStorage for anon), one-banner-at-a-time most-recent-wins resolution; buyer-web AnnouncementBar in root layout + admin-web /announcements | ✅ done |
+| 41    | Product Collections                | Admin-curated cross-brand product lists with DRAFT/ACTIVE/ARCHIVED lifecycle, slug-keyed URLs, position-ordered grid, idempotent add; buyer-web /collections index + /collections/[slug] hero+grid + top-bar link; admin-web /collections editor with add/remove/reorder | ✅ done |
 
 ---
 

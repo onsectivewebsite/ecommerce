@@ -115,6 +115,7 @@ export function TopBar() {
             ))}
           </select>
           <Link href="/outlet" className="ons-btn-ghost text-xs">Outlet</Link>
+          <Link href="/collections" className="ons-btn-ghost text-xs">Collections</Link>
           <Link href="/compare" className="ons-btn-ghost text-xs">Compare</Link>
           <Link href="/trade-in" className="ons-btn-ghost text-xs">Trade in</Link>
           <Link href="/gift-cards" className="ons-btn-ghost text-xs">Gift cards</Link>

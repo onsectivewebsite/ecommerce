@@ -402,3 +402,10 @@ Legend: ⚪ planned · 🟡 in progress · 🟢 done
 - [x] AnnouncementsService (currentActive, dismiss with localStorage/server fallback, admin CRUD) + 3 controllers (public/buyer/admin) — 2026-05-22
 - [x] AnnouncementsApi; buyer-web AnnouncementBar in root layout; admin-web /announcements page + nav — 2026-05-22
 - [x] `doc/phase-40-debug.md` — 2026-05-22
+
+## Phase 41 — Product Collections ✅
+- [x] `doc/phase-41.md` spec — 2026-05-22
+- [x] Schema (ProductCollection + ProductCollectionItem + CollectionStatus enum + relations) — 2026-05-22
+- [x] CollectionsService (admin CRUD + per-item add/remove/reorder + slug-keyed public read) + 2 controllers — 2026-05-22
+- [x] CollectionsApi; buyer-web /collections + /collections/[slug] + TopBar link; admin-web /collections editor + nav — 2026-05-22
+- [x] `doc/phase-41-debug.md` — 2026-05-22

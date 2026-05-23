@@ -24,6 +24,7 @@ export * from './endpoints/autoship';
 export * from './endpoints/comparison';
 export * from './endpoints/saved-searches';
 export * from './endpoints/announcements';
+export * from './endpoints/collections';
 export * from './endpoints/messaging';
 export * from './endpoints/disputes';
 export * from './endpoints/support';
