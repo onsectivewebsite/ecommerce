@@ -8,9 +8,9 @@ import { AnnouncementBar } from '@/components/AnnouncementBar';
 import { ConsentBanner } from '@/components/ConsentBanner';
 
 export const metadata: Metadata = {
-  title: 'Onsective — A new kind of marketplace',
+  title: 'Onsective — Shop anything online',
   description:
-    'Premium goods from independent sellers worldwide. Designed for trust, built for scale.',
+    'Millions of products from sellers around the world. Electronics, fashion, beauty, home, and more.',
 };
 
 export const dynamic = 'force-dynamic';
@@ -28,8 +28,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <ConsentBanner />
               <footer className="border-t border-ink-800 mt-16">
                 <div className="container py-10 text-sm text-ink-400 flex flex-wrap items-center justify-between gap-3">
-                  <span>© {new Date().getFullYear()} Onsective — A new kind of marketplace.</span>
-                  <span className="text-ink-500">Crafted for trust at scale.</span>
+                  <span>© {new Date().getFullYear()} Onsective. All rights reserved.</span>
+                  <div className="flex items-center gap-4 text-ink-500">
+                    <a href="/legal/cookies" className="hover:text-ink-300">Cookies</a>
+                    <a href="/account/privacy" className="hover:text-ink-300">Privacy</a>
+                    <a href="/verify" className="hover:text-ink-300">Verify serial</a>
+                    <a href="/impact" className="hover:text-ink-300">Impact</a>
+                  </div>
                 </div>
               </footer>
             </CartProvider>

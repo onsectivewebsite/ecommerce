@@ -2,12 +2,21 @@
   "nav": {
     "home": "होम",
     "search": "खोजें",
+    "searchPlaceholder": "उत्पाद, ब्रांड, श्रेणियाँ खोजें…",
     "cart": "कार्ट",
     "account": "खाता",
     "orders": "ऑर्डर",
     "downloads": "डाउनलोड",
     "signIn": "साइन इन",
-    "signOut": "साइन आउट"
+    "signUp": "साइन अप",
+    "signOut": "साइन आउट",
+    "inbox": "इनबॉक्स",
+    "allProducts": "सभी उत्पाद",
+    "collections": "कलेक्शन",
+    "outlet": "आउटलेट",
+    "compare": "तुलना करें",
+    "giftCards": "गिफ्ट कार्ड",
+    "tradeIn": "ट्रेड-इन"
   },
   "home": {
     "heroTagline": "एक प्रीमियम वैश्विक मार्केटप्लेस",

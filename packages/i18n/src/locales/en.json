@@ -2,12 +2,21 @@
   "nav": {
     "home": "Home",
     "search": "Search",
+    "searchPlaceholder": "Search products, brands, categories…",
     "cart": "Cart",
     "account": "Account",
     "orders": "Orders",
     "downloads": "Downloads",
     "signIn": "Sign in",
-    "signOut": "Sign out"
+    "signUp": "Sign up",
+    "signOut": "Sign out",
+    "inbox": "Inbox",
+    "allProducts": "All products",
+    "collections": "Collections",
+    "outlet": "Outlet",
+    "compare": "Compare",
+    "giftCards": "Gift cards",
+    "tradeIn": "Trade in"
   },
   "home": {
     "heroTagline": "A premium global marketplace",

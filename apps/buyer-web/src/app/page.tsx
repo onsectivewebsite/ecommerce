@@ -24,16 +24,16 @@ export default async function HomePage() {
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(60%_60%_at_20%_20%,rgba(37,99,255,0.18),transparent),radial-gradient(60%_60%_at_80%_80%,rgba(212,169,63,0.12),transparent)]" />
         <div className="container py-20 md:py-28 grid md:grid-cols-2 gap-10 items-center">
           <div className="animate-slide-up">
-            <p className="text-xs uppercase tracking-[0.2em] text-gold-400">A new kind of marketplace</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-accent-300">Shop everything</p>
             <h1 className="mt-3 font-display text-4xl md:text-6xl font-semibold tracking-tight text-ink-50">
-              Discover what the rest of the world is making.
+              Millions of products. One place.
             </h1>
             <p className="mt-5 text-ink-300 text-lg max-w-prose">
-              Onsective is a curated, global marketplace of premium independent sellers — paid fairly, shipped reliably, and presented beautifully.
+              Browse the full Onsective catalog — electronics, fashion, beauty, home, and more. Shipped reliably from sellers around the world.
             </p>
             <div className="mt-7 flex gap-3">
-              <Link href="/search" className="ons-btn-primary">Shop new arrivals</Link>
-              <Link href="/register" className="ons-btn-secondary">Sell on Onsective</Link>
+              <Link href="/search" className="ons-btn-primary">Start shopping</Link>
+              <Link href="/register" className="ons-btn-secondary">Become a seller</Link>
             </div>
           </div>
           <div className="hidden md:block">
@@ -56,8 +56,8 @@ export default async function HomePage() {
       <section className="container py-12">
         <div className="flex items-end justify-between gap-4 mb-6">
           <div>
-            <h2 className="font-display text-2xl tracking-tight">Featured categories</h2>
-            <p className="text-sm text-ink-400">Hand-picked entry points into the catalog.</p>
+            <h2 className="font-display text-2xl tracking-tight">Shop by category</h2>
+            <p className="text-sm text-ink-400">Jump straight to what you&apos;re after.</p>
           </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
