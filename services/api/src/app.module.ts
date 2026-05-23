@@ -36,6 +36,7 @@ import { QnaModule } from './modules/qna/qna.module';
 import { AutoshipModule } from './modules/autoship/autoship.module';
 import { ComparisonModule } from './modules/comparison/comparison.module';
 import { SavedSearchesModule } from './modules/saved-searches/saved-searches.module';
+import { AnnouncementsModule } from './modules/announcements/announcements.module';
 import { MessagingModule } from './modules/messaging/messaging.module';
 import { SupportModule } from './modules/support/support.module';
 import { DisputesModule } from './modules/disputes/disputes.module';
@@ -114,6 +115,7 @@ import { GiftCardsModule } from './modules/gift-cards/gift-cards.module';
     AutoshipModule,
     ComparisonModule,
     SavedSearchesModule,
+    AnnouncementsModule,
     MessagingModule,
     DisputesModule,
     SupportModule,

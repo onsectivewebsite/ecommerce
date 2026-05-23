@@ -4,6 +4,7 @@ import { AuthProvider } from '@/lib/auth-context';
 import { CartProvider } from '@/lib/cart-context';
 import { I18nProvider } from '@/lib/i18n-context';
 import { TopBar } from '@/components/TopBar';
+import { AnnouncementBar } from '@/components/AnnouncementBar';
 import { ConsentBanner } from '@/components/ConsentBanner';
 
 export const metadata: Metadata = {
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <AuthProvider>
           <I18nProvider>
             <CartProvider>
+              <AnnouncementBar />
               <TopBar />
               <main>{children}</main>
               <ConsentBanner />

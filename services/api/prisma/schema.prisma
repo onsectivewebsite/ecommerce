@@ -302,6 +302,47 @@ model SavedSearchHit {
   @@index([productId])
 }
 
+/// Phase 40: severity tone of a storewide banner.
+enum AnnouncementLevel {
+  INFO
+  SUCCESS
+  WARNING
+}
+
+/// Phase 40: a site-wide banner shown across buyer-web during its
+/// scheduled window.
+model Announcement {
+  id        String            @id
+  title     String
+  message   String
+  level     AnnouncementLevel @default(INFO)
+  linkUrl   String?
+  linkLabel String?
+  startsAt  DateTime
+  endsAt    DateTime?
+  isActive  Boolean           @default(true)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  dismissals AnnouncementDismissal[]
+
+  @@index([isActive, startsAt])
+}
+
+/// Phase 40: per-buyer hide; the same announcement never re-shows.
+model AnnouncementDismissal {
+  id             String   @id
+  userId         String
+  announcementId String
+  createdAt      DateTime @default(now())
+
+  user         User         @relation("AnnouncementDismisser", fields: [userId], references: [id], onDelete: Cascade)
+  announcement Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, announcementId])
+  @@index([userId])
+}
+
 /// Phase 38: a product in a buyer's side-by-side comparison set.
 model ComparisonItem {
   id        String   @id
@@ -374,6 +415,7 @@ model User {
   productSubscriptions ProductSubscription[] @relation("AutoshipBuyer")
   comparisonItems ComparisonItem[] @relation("ComparisonUser")
   savedSearches   SavedSearch[]    @relation("SavedSearchUser")
+  announcementDismissals AnnouncementDismissal[] @relation("AnnouncementDismisser")
   threads       MessageThread[]   @relation("ThreadBuyer")
   wishlists     Wishlist[]
   wallet        WalletAccount?

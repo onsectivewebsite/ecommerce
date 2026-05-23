@@ -395,3 +395,10 @@ Legend: ⚪ planned · 🟡 in progress · 🟢 done
 - [x] Endpoints: /saved-searches/* + /admin/saved-searches/scan; SavedSearchesApi — 2026-05-22
 - [x] Frontend: buyer-web SaveSearchButton on /search + /account/saved-searches + account tile — 2026-05-22
 - [x] `doc/phase-39-debug.md` — 2026-05-22
+
+## Phase 40 — Storewide Announcements ✅
+- [x] `doc/phase-40.md` spec — 2026-05-22
+- [x] Schema (Announcement + AnnouncementDismissal + AnnouncementLevel enum + relations) — 2026-05-22
+- [x] AnnouncementsService (currentActive, dismiss with localStorage/server fallback, admin CRUD) + 3 controllers (public/buyer/admin) — 2026-05-22
+- [x] AnnouncementsApi; buyer-web AnnouncementBar in root layout; admin-web /announcements page + nav — 2026-05-22
+- [x] `doc/phase-40-debug.md` — 2026-05-22

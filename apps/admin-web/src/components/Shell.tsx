@@ -12,6 +12,7 @@ const NAV = [
   { href: '/returns', label: 'Returns' },
   { href: '/reviews', label: 'Reviews' },
   { href: '/qna', label: 'Q&A' },
+  { href: '/announcements', label: 'Announcements' },
   { href: '/disputes', label: 'Disputes' },
   { href: '/support', label: 'Support' },
   { href: '/promotions', label: 'Promotions' },
