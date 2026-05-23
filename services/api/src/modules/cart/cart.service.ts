@@ -41,6 +41,15 @@ export class CartService {
     // Compliance: age-gate and seller-doc checks before adding any qty.
     await this.compliance.gateCartAdd(userId, variant.productId);
 
+    // Listings-refactor Step 3: resolve which ProductListing this line targets.
+    // Today there's one listing per product (post-backfill); the Buy Box
+    // ranking in Step 5 will pick a specific winner when several exist.
+    const listing = await this.prisma.productListing.findFirst({
+      where: { productId: variant.productId, status: 'ACTIVE' },
+      orderBy: [{ buyBoxScore: 'desc' }, { createdAt: 'asc' }],
+      select: { id: true },
+    });
+
     const cart = await this.ensureCart(userId, variant.product.currency);
     if (cart.currency !== variant.product.currency) {
       throw new BadRequestException('Cart currency mismatch');
@@ -54,7 +63,11 @@ export class CartService {
     if (existing) {
       await this.prisma.cartItem.update({
         where: { id: existing.id },
-        data: { qty: newQty, unitPriceMinor: variant.priceMinor },
+        data: {
+          qty: newQty,
+          unitPriceMinor: variant.priceMinor,
+          listingId: existing.listingId ?? listing?.id ?? null,
+        },
       });
     } else {
       await this.prisma.cartItem.create({
@@ -62,6 +75,7 @@ export class CartService {
           id: newId(),
           cartId: cart.id,
           variantId,
+          listingId: listing?.id ?? null,
           qty,
           unitPriceMinor: variant.priceMinor,
         },

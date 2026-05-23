@@ -342,8 +342,10 @@ model ProductListing {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  seller  Seller  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  seller     Seller      @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  cartItems  CartItem[]
+  orderItems OrderItem[]
 
   @@unique([productId, sellerId, condition])
   @@unique([sellerId, sku])
@@ -797,15 +799,20 @@ model CartItem {
   id             String   @id
   cartId         String
   variantId      String
+  /// Listings-refactor Step 3: which seller's listing this line targets.
+  /// Nullable during migration; new lines always write it.
+  listingId      String?
   qty            Int
   unitPriceMinor Int
   createdAt      DateTime @default(now())
 
-  cart    Cart           @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  variant ProductVariant @relation(fields: [variantId], references: [id])
+  cart    Cart            @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  variant ProductVariant  @relation(fields: [variantId], references: [id])
+  listing ProductListing? @relation(fields: [listingId], references: [id])
 
   @@unique([cartId, variantId])
   @@index([cartId])
+  @@index([listingId])
 }
 
 model Order {
@@ -857,6 +864,10 @@ model OrderItem {
   id                    String  @id
   orderId               String
   variantId             String
+  /// Listings-refactor Step 3: which seller's listing this line came from.
+  /// Nullable while pre-Step-3 OrderItems exist; the checkout transaction
+  /// writes it on every new row.
+  listingId             String?
   productTitleSnapshot  String
   variantNameSnapshot   String
   unitPriceMinor        Int
@@ -879,6 +890,7 @@ model OrderItem {
 
   order            Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
   variant          ProductVariant   @relation(fields: [variantId], references: [id])
+  listing          ProductListing?  @relation(fields: [listingId], references: [id])
   digitalDelivery  DigitalDelivery?
   returnItems      ReturnItem[]
   review           Review?
@@ -888,6 +900,7 @@ model OrderItem {
   slaBreaches      SlaBreach[]
 
   @@index([orderId])
+  @@index([listingId])
   @@index([fulfilledFromWarehouseId, pickedAt])
   @@index([promisedShipBy, pickedAt])
   @@index([promisedDeliverBy])

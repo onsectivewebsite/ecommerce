@@ -72,6 +72,41 @@ async function main() {
 
   console.log(`backfill complete: ${created} created, ${updated} updated/refreshed`);
   console.log(`total products: ${products.length}, total listings now: ${await prisma.productListing.count()}`);
+
+  // Step 3: backfill listingId on existing CartItem + OrderItem rows.
+  // Each variant maps to its sole listing (one per product post-Step-1).
+  const variantListing = new Map<string, string>();
+  const variants = await prisma.productVariant.findMany({
+    select: { id: true, productId: true },
+  });
+  for (const v of variants) {
+    const l = await prisma.productListing.findFirst({
+      where: { productId: v.productId, status: { in: ['ACTIVE', 'INACTIVE'] } },
+      select: { id: true },
+      orderBy: { createdAt: 'asc' },
+    });
+    if (l) variantListing.set(v.id, l.id);
+  }
+
+  let cartFilled = 0;
+  for (const [variantId, listingId] of variantListing) {
+    const r = await prisma.cartItem.updateMany({
+      where: { variantId, listingId: null },
+      data: { listingId },
+    });
+    cartFilled += r.count;
+  }
+  console.log(`cart items backfilled with listingId: ${cartFilled}`);
+
+  let orderFilled = 0;
+  for (const [variantId, listingId] of variantListing) {
+    const r = await prisma.orderItem.updateMany({
+      where: { variantId, listingId: null },
+      data: { listingId },
+    });
+    orderFilled += r.count;
+  }
+  console.log(`order items backfilled with listingId: ${orderFilled}`);
 }
 
 main()

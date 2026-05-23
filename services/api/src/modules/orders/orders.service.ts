@@ -298,6 +298,10 @@ export class OrdersService {
               return {
                 id: itemIds.get(i.variantId)!,
                 variantId: i.variantId,
+                // Listings-refactor Step 3: carry the cart line's listing
+                // through to the order. Old cart lines (pre-Step-3) carry
+                // null; new lines always have it.
+                listingId: i.listingId ?? null,
                 productTitleSnapshot: i.variant.product.title,
                 variantNameSnapshot: i.variant.name,
                 unitPriceMinor: i.unitPriceMinor,
@@ -553,6 +557,14 @@ export class OrdersService {
     const commissionBps = seller.commissionBps ?? Number(await this.settings.getInt('platform.commission.bps'));
     const commissionMinor = Math.round((netSubtotal * commissionBps) / 10000);
 
+    // Listings-refactor Step 3: resolve the listing for the subscription
+    // run so the resulting OrderItem carries listingId.
+    const listing = await this.prisma.productListing.findFirst({
+      where: { productId: variant.productId, status: 'ACTIVE' },
+      orderBy: [{ buyBoxScore: 'desc' }, { createdAt: 'asc' }],
+      select: { id: true },
+    });
+
     const orderItemId = newId();
     const order = await this.prisma.$transaction(async (tx) => {
       await tx.productVariant.update({
@@ -584,6 +596,7 @@ export class OrdersService {
             create: [{
               id: orderItemId,
               variantId: variant.id,
+              listingId: listing?.id ?? null,
               productTitleSnapshot: product.title,
               variantNameSnapshot: variant.name,
               unitPriceMinor: variant.priceMinor,

@@ -18,8 +18,7 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.onsective.app",
       "associatedDomains": [
-        "applinks:shop.onsective.com",
-        "applinks:onsective.com"
+        "applinks:shop.itsnottechy.cloud"
       ],
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
@@ -36,8 +35,8 @@
           "action": "VIEW",
           "autoVerify": true,
           "data": [
-            { "scheme": "https", "host": "shop.onsective.com", "pathPrefix": "/p" },
-            { "scheme": "https", "host": "shop.onsective.com", "pathPrefix": "/orders" },
+            { "scheme": "https", "host": "shop.itsnottechy.cloud", "pathPrefix": "/p" },
+            { "scheme": "https", "host": "shop.itsnottechy.cloud", "pathPrefix": "/orders" },
             { "scheme": "onsective" }
           ],
           "category": ["BROWSABLE", "DEFAULT"]
