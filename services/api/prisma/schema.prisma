@@ -309,6 +309,48 @@ enum CollectionStatus {
   ARCHIVED
 }
 
+/// Listings-refactor Step 1: lifecycle of a seller's offer on a product.
+enum ListingStatus {
+  ACTIVE
+  INACTIVE
+  OUT_OF_STOCK
+}
+
+/// Listings-refactor Step 1: a seller's specific offer on a canonical product.
+/// The Product still carries sellerId/basePriceMinor/condition for back-compat
+/// while the cart and order path migrate; new Buy Box reads (Step 2) come from
+/// here, and the cart→order refactor (Step 3) will switch OrderItem to point
+/// at a ProductListing instead of straight at a ProductVariant.
+model ProductListing {
+  id              String           @id
+  productId       String
+  sellerId        String
+  /// Seller's own SKU; unique per seller.
+  sku             String
+  condition       ProductCondition @default(NEW_GENUINE)
+  priceMinor      Int
+  currency        String
+  status          ListingStatus    @default(ACTIVE)
+  fulfillmentMode FulfillmentMode  @default(SELLER)
+  /// Buy Box score 0..100, computed by the Step-2 ranking job.
+  buyBoxScore     Int              @default(0)
+  buyBoxScoredAt  DateTime?
+  /// While there is at most one listing per (product, condition) the
+  /// single listing is trivially the winner; flips to a per-product
+  /// computation once multi-seller listings land in Step 4.
+  isBuyBoxWinner  Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  seller  Seller  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, sellerId, condition])
+  @@unique([sellerId, sku])
+  @@index([productId, status, buyBoxScore])
+  @@index([sellerId, status])
+}
+
 /// Phase 41: admin-curated cross-brand product list with its own landing
 /// page (distinct from brand storefronts and category taxonomy).
 model ProductCollection {
@@ -582,6 +624,7 @@ model Seller {
 
   user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   products          Product[]
+  listings          ProductListing[]
   orders            Order[]
   carrierConfigs    CarrierConfig[]
   shippingRules     ShippingRule[]
@@ -675,6 +718,7 @@ model Product {
   comparisonItems ComparisonItem[]
   savedSearchHits SavedSearchHit[]
   collectionItems ProductCollectionItem[]
+  listings        ProductListing[]
   wishlistItems  WishlistItem[]
   promotionScopes PromotionProductScope[]
   events         ProductEvent[]

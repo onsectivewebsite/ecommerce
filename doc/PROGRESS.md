@@ -409,3 +409,16 @@ Legend: ⚪ planned · 🟡 in progress · 🟢 done
 - [x] CollectionsService (admin CRUD + per-item add/remove/reorder + slug-keyed public read) + 2 controllers — 2026-05-22
 - [x] CollectionsApi; buyer-web /collections + /collections/[slug] + TopBar link; admin-web /collections editor + nav — 2026-05-22
 - [x] `doc/phase-41-debug.md` — 2026-05-22
+
+## Repositioning pass — Amazon-style ✅ — 2026-05-23
+- [x] Memory updated: Onsective is a general open marketplace, not certified-only
+- [x] Buyer-web copy scrubbed: hero ("Millions of products"), TopBar (no Certified chip, prominent search w/ 🔍, secondary nav row), footer (drop "trust at scale")
+- [x] Seller-web + admin-web: top nav → fixed left sidebar (grouped sections, mobile drawer, accent-coloured active item)
+- [x] i18n: TopBar labels now use t(); added nav.* keys to en + hi locales
+- [x] Buyer-web light theme: invert ink palette in tailwind.config.cjs, override .ons-card/.ons-btn-primary in globals.css, warm-amber cta-500 CTA
+- [x] TrustBadge: drop "Certified Genuine" on NEW; refurb relabel as "Renewed"
+
+## Listings refactor — Step 1: schema + backfill ✅ — 2026-05-23
+- [x] `doc/listings-refactor.md` 5-step plan
+- [x] Schema (ProductListing model + ListingStatus enum + Product.listings + Seller.listings)
+- [x] `prisma/backfill-listings.ts` idempotent script — runs after `prisma db push`
