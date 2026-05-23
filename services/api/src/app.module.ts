@@ -38,6 +38,7 @@ import { ComparisonModule } from './modules/comparison/comparison.module';
 import { SavedSearchesModule } from './modules/saved-searches/saved-searches.module';
 import { AnnouncementsModule } from './modules/announcements/announcements.module';
 import { CollectionsModule } from './modules/collections/collections.module';
+import { BuyBoxModule } from './modules/buybox/buybox.module';
 import { MessagingModule } from './modules/messaging/messaging.module';
 import { SupportModule } from './modules/support/support.module';
 import { DisputesModule } from './modules/disputes/disputes.module';
@@ -118,6 +119,7 @@ import { GiftCardsModule } from './modules/gift-cards/gift-cards.module';
     SavedSearchesModule,
     AnnouncementsModule,
     CollectionsModule,
+    BuyBoxModule,
     MessagingModule,
     DisputesModule,
     SupportModule,

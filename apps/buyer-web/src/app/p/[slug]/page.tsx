@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { PUBLIC_API_URL } from '@/lib/env';
 import type { ProductDetailDto, ProductCondition } from '@onsective/shared-types';
-import type { RefurbUnitRow } from '@onsective/api-client';
+import type { BuyBoxResponse, RefurbUnitRow } from '@onsective/api-client';
 import { ProductBuyBox } from '@/components/ProductBuyBox';
 import { RecommendationsRow } from '@/components/RecommendationsRow';
 import { ProductQna } from '@/components/ProductQna';
@@ -30,6 +30,12 @@ async function fetchProduct(slug: string): Promise<ProductDetailDto | null> {
   );
   if (!res.ok) return null;
   return (await res.json()) as ProductDetailDto;
+}
+
+async function fetchBuyBox(productId: string): Promise<BuyBoxResponse | null> {
+  const res = await fetch(`${PUBLIC_API_URL}/buybox/${productId}`, { cache: 'no-store' });
+  if (!res.ok) return null;
+  return (await res.json()) as BuyBoxResponse;
 }
 
 function trimDescription(s: string, max = 160): string {
@@ -71,11 +77,16 @@ export default async function ProductPage({ params }: { params: { slug: string }
     return <div className="container py-16 text-ink-400">Product not found.</div>;
   }
   const isRefurb = p.condition && p.condition !== 'NEW_GENUINE';
-  let refurbUnits: RefurbUnitRow[] = [];
-  if (isRefurb) {
-    const r = await fetch(`${PUBLIC_API_URL}/refurb-units/by-product/${p.id}`, { cache: 'no-store' });
-    if (r.ok) refurbUnits = (await r.json()) as RefurbUnitRow[];
-  }
+  const [refurbRes, buyBox] = await Promise.all([
+    isRefurb
+      ? fetch(`${PUBLIC_API_URL}/refurb-units/by-product/${p.id}`, { cache: 'no-store' })
+      : Promise.resolve(null),
+    fetchBuyBox(p.id),
+  ]);
+  const refurbUnits: RefurbUnitRow[] = refurbRes && refurbRes.ok
+    ? ((await refurbRes.json()) as RefurbUnitRow[])
+    : [];
+  const winner = buyBox?.winner ?? null;
 
   const canonical = `${BUYER_ORIGIN}/p/${encodeURIComponent(p.slug)}`;
   const itemCondition = p.condition ? CONDITION_SCHEMA[p.condition] : null;
@@ -134,6 +145,20 @@ export default async function ProductPage({ params }: { params: { slug: string }
         </div>
         <div className="space-y-4">
           <ProductBuyBox product={p} />
+          {winner && (
+            <div className="text-sm text-ink-300 flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span>
+                Sold by{' '}
+                <a href={`/seller/${encodeURIComponent(winner.sellerStoreSlug)}`} className="text-accent-600 font-medium">
+                  {winner.sellerName}
+                </a>
+              </span>
+              <span aria-hidden>·</span>
+              <span className={winner.isOnsectiveFulfilled ? 'text-emerald-600 font-medium' : ''}>
+                {winner.isOnsectiveFulfilled ? '🚚 Ships from Onsective' : 'Ships from seller'}
+              </span>
+            </div>
+          )}
           {isRefurb && <RefurbUnitPicker product={p} units={refurbUnits} />}
           <SubscribeSave product={p} />
           <CompareButton productId={p.id} slug={p.slug} />
