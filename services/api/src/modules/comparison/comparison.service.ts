@@ -18,7 +18,7 @@ export class ComparisonService {
           include: {
             media: { orderBy: { position: 'asc' }, take: 1 },
             brand: { select: { name: true } },
-            seller: { select: { storeName: true } },
+            seller: { select: { displayName: true } },
             category: { select: { name: true } },
             variants: { select: { priceMinor: true, inventoryQty: true } },
           },
@@ -54,7 +54,7 @@ export class ComparisonService {
         priceMinor,
         condition: p.condition,
         brandName: p.brand?.name ?? null,
-        sellerName: p.seller.storeName,
+        sellerName: p.seller.displayName,
         categoryName: p.category.name,
         inStock,
         ratingAvg: r ? Math.round(r.avg * 100) / 100 : 0,
