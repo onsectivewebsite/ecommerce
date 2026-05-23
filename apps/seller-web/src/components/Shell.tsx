@@ -13,6 +13,7 @@ const NAV: Array<{ section?: string; href: string; label: string }> = [
   { href: '/health', label: 'Health' },
 
   { section: 'Catalog', href: '/products', label: 'Products' },
+  { href: '/listings', label: 'Listings' },
   { href: '/products/bulk', label: 'Bulk import' },
   { href: '/inventory/alerts', label: 'Low stock' },
   { href: '/refurb-units', label: 'Refurb units' },

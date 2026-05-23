@@ -61,7 +61,7 @@
       ]
     ],
     "extra": {
-      "apiUrl": "https://api.onsective.com",
+      "apiUrl": "https://api.itsnottechy.cloud",
       "stripePublishableKey": "",
       "eas": { "projectId": "" }
     }

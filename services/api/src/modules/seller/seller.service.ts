@@ -211,6 +211,23 @@ export class SellerService {
       include: { media: true, variants: true, category: true, seller: true },
     });
 
+    // Listings-refactor: auto-create the seller's own ProductListing on
+    // their new product so /buybox/:productId returns it immediately.
+    await this.prisma.productListing.create({
+      data: {
+        id: newId(),
+        productId: created.id,
+        sellerId: seller.id,
+        sku: created.slug,
+        condition,
+        priceMinor: dto.basePriceMinor,
+        currency: dto.currency.toUpperCase(),
+        status: created.status === 'ACTIVE' ? 'ACTIVE' : 'INACTIVE',
+        fulfillmentMode: created.fulfillmentMode,
+        isBuyBoxWinner: true,
+      },
+    });
+
     // Phase 3: charge the resolved listing fee on publish.
     if (created.status === 'ACTIVE') {
       await this.fees.chargeOnPublish(seller.id, created.id, category.id);
