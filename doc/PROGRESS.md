@@ -379,3 +379,11 @@ Legend: ⚪ planned · 🟡 in progress · 🟢 done
 - [x] Endpoints: /autoship/* + /admin/autoship/scan; AutoshipApi in api-client — 2026-05-22
 - [x] Frontend: buyer-web SubscribeSave on PDP + /account/subscriptions + account tile — 2026-05-22
 - [x] `doc/phase-37-debug.md` — 2026-05-22
+
+## Phase 38 — Product Comparison ✅
+- [x] `doc/phase-38.md` spec — 2026-05-22
+- [x] Schema (ComparisonItem model + relations) — 2026-05-22
+- [x] ComparisonService (list/add/remove/clear, cap 4, hydrated with rating + attributes) + /comparison endpoints — 2026-05-22
+- [x] ComparisonApi in api-client — 2026-05-22
+- [x] Frontend: buyer-web CompareButton on PDP + /compare side-by-side table + TopBar link — 2026-05-22
+- [x] `doc/phase-38-debug.md` — 2026-05-22

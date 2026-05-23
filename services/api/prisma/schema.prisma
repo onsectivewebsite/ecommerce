@@ -270,6 +270,20 @@ enum AutoshipStatus {
   CANCELLED
 }
 
+/// Phase 38: a product in a buyer's side-by-side comparison set.
+model ComparisonItem {
+  id        String   @id
+  userId    String
+  productId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation("ComparisonUser", fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId])
+  @@index([userId])
+}
+
 enum MessageSenderKind {
   BUYER
   SELLER
@@ -326,6 +340,7 @@ model User {
   answersGiven   ProductAnswer[]   @relation("AnswerAuthor")
   answerVotes    AnswerHelpfulVote[]
   productSubscriptions ProductSubscription[] @relation("AutoshipBuyer")
+  comparisonItems ComparisonItem[] @relation("ComparisonUser")
   threads       MessageThread[]   @relation("ThreadBuyer")
   wishlists     Wishlist[]
   wallet        WalletAccount?
@@ -541,6 +556,7 @@ model Product {
   coViewB        ProductCoView[]    @relation("ProductCoViewB")
   reviews        Review[]
   questions      ProductQuestion[]
+  comparisonItems ComparisonItem[]
   wishlistItems  WishlistItem[]
   promotionScopes PromotionProductScope[]
   events         ProductEvent[]

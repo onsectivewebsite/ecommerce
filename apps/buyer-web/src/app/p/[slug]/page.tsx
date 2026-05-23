@@ -6,6 +6,7 @@ import { ProductBuyBox } from '@/components/ProductBuyBox';
 import { RecommendationsRow } from '@/components/RecommendationsRow';
 import { ProductQna } from '@/components/ProductQna';
 import { SubscribeSave } from '@/components/SubscribeSave';
+import { CompareButton } from '@/components/CompareButton';
 import { TrustBadge } from '@/components/TrustBadge';
 import { RefurbUnitPicker } from '@/components/RefurbUnitPicker';
 import { JsonLd } from '@/components/JsonLd';
@@ -135,6 +136,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
           <ProductBuyBox product={p} />
           {isRefurb && <RefurbUnitPicker product={p} units={refurbUnits} />}
           <SubscribeSave product={p} />
+          <CompareButton productId={p.id} slug={p.slug} />
         </div>
       </div>
       <div className="mt-12 grid md:grid-cols-3 gap-6">
