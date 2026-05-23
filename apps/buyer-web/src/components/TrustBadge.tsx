@@ -6,41 +6,38 @@ interface Props {
   size?: 'sm' | 'md';
 }
 
-const CONFIG: Record<ProductCondition, { label: string; sub: string; bg: string; ring: string; fg: string }> = {
-  NEW_GENUINE: {
-    label: 'Certified Genuine',
-    sub: 'Authorized reseller',
-    bg: 'bg-emerald-500/15',
-    ring: 'ring-emerald-500/40',
-    fg: 'text-emerald-300',
-  },
+// Plain product-condition tags — Amazon-style "New", "Renewed", "Used".
+// The previous "Certified Genuine" framing implied a closed curated catalog;
+// the platform is now a general marketplace, so condition is a neutral label.
+const CONFIG: Record<ProductCondition, { label: string; sub: string; bg: string; ring: string; fg: string } | null> = {
+  NEW_GENUINE: null, // don't render a badge for new items — it's the default
   REFURB_GRADE_A: {
-    label: 'Certified Refurbished',
-    sub: 'Grade A · 12mo warranty',
+    label: 'Renewed',
+    sub: 'Grade A · 12-month warranty',
     bg: 'bg-amber-500/15',
     ring: 'ring-amber-500/40',
-    fg: 'text-amber-300',
+    fg: 'text-amber-700',
   },
   REFURB_GRADE_B: {
-    label: 'Certified Refurbished',
-    sub: 'Grade B · 6mo warranty',
+    label: 'Renewed',
+    sub: 'Grade B · 6-month warranty',
     bg: 'bg-zinc-500/15',
     ring: 'ring-zinc-500/40',
-    fg: 'text-zinc-300',
+    fg: 'text-zinc-700',
   },
   REFURB_GRADE_C: {
-    label: 'Certified Refurbished',
+    label: 'Renewed',
     sub: 'Grade C · 30-day warranty',
     bg: 'bg-orange-500/15',
     ring: 'ring-orange-500/40',
-    fg: 'text-orange-300',
+    fg: 'text-orange-700',
   },
   OPEN_BOX: {
     label: 'Open Box',
-    sub: 'Inspected · 6mo warranty',
+    sub: 'Inspected · 6-month warranty',
     bg: 'bg-sky-500/15',
     ring: 'ring-sky-500/40',
-    fg: 'text-sky-300',
+    fg: 'text-sky-700',
   },
 };
 
