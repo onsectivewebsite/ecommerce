@@ -20,7 +20,7 @@ const NAV: Array<{ section?: string; href: string; label: string }> = [
   { href: '/authenticity', label: 'Authenticity' },
   { href: '/warranty', label: 'Warranty' },
   { href: '/trade-in', label: 'Trade-in' },
-  { href: '/refurb-units' as unknown as string, label: 'Refurb units' },
+  { href: '/refurb-units', label: 'Refurb units' },
   { href: '/dispositions', label: 'Dispositions' },
   { href: '/repair-network', label: 'Repair' },
   { href: '/ai-vision', label: 'AI vision' },
