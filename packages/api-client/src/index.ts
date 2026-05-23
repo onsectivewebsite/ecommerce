@@ -22,6 +22,7 @@ export * from './endpoints/reviews';
 export * from './endpoints/qna';
 export * from './endpoints/autoship';
 export * from './endpoints/comparison';
+export * from './endpoints/saved-searches';
 export * from './endpoints/messaging';
 export * from './endpoints/disputes';
 export * from './endpoints/support';

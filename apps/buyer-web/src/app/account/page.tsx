@@ -20,6 +20,7 @@ export default function AccountPage() {
           <Link href="/account/returns" className="ons-btn-secondary">Returns</Link>
           <Link href="/account/qna" className="ons-btn-secondary">My Q&amp;A</Link>
           <Link href="/account/subscriptions" className="ons-btn-secondary">Subscriptions</Link>
+          <Link href="/account/saved-searches" className="ons-btn-secondary">Saved searches</Link>
           <Link href="/account/wishlist" className="ons-btn-secondary">Wishlist</Link>
           <Link href="/account/wallet" className="ons-btn-secondary">Wallet</Link>
           <Link href="/account/payment-methods" className="ons-btn-secondary">Payment methods</Link>

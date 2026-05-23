@@ -1,6 +1,7 @@
 import { PUBLIC_API_URL } from '@/lib/env';
 import { ProductCard } from '@/components/ProductCard';
 import { SponsoredRow } from '@/components/SponsoredRow';
+import { SaveSearchButton } from '@/components/SaveSearchButton';
 import type { PaginatedProducts } from '@onsective/shared-types';
 
 export const dynamic = 'force-dynamic';
@@ -24,10 +25,11 @@ export default async function SearchPage({ searchParams }: { searchParams: { que
       <h1 className="font-display text-3xl tracking-tight">
         {q ? `Results for "${q}"` : 'All products'}
       </h1>
-      <p className="text-ink-400 mt-1 mb-6">
+      <p className="text-ink-400 mt-1 mb-3">
         {products.total} products
         {products.source ? <span className="ml-2 text-ink-500 text-xs">· {products.source}</span> : null}
       </p>
+      {q && <div className="mb-6"><SaveSearchButton q={q} /></div>}
       {products.suggestion && (
         <p className="text-ink-200 mb-4">
           Did you mean{' '}

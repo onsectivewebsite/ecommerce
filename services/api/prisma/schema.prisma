@@ -270,6 +270,38 @@ enum AutoshipStatus {
   CANCELLED
 }
 
+/// Phase 39: a buyer's saved search; the scheduler alerts them when new
+/// products begin matching it.
+model SavedSearch {
+  id            String   @id
+  userId        String
+  q             String
+  name          String?
+  lastCheckedAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User             @relation("SavedSearchUser", fields: [userId], references: [id], onDelete: Cascade)
+  hits SavedSearchHit[]
+
+  @@index([userId])
+}
+
+/// Phase 39: dedupe row — guarantees each product notifies a given saved
+/// search at most once.
+model SavedSearchHit {
+  id            String   @id
+  savedSearchId String
+  productId     String
+  notifiedAt    DateTime @default(now())
+
+  savedSearch SavedSearch @relation(fields: [savedSearchId], references: [id], onDelete: Cascade)
+  product     Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([savedSearchId, productId])
+  @@index([productId])
+}
+
 /// Phase 38: a product in a buyer's side-by-side comparison set.
 model ComparisonItem {
   id        String   @id
@@ -341,6 +373,7 @@ model User {
   answerVotes    AnswerHelpfulVote[]
   productSubscriptions ProductSubscription[] @relation("AutoshipBuyer")
   comparisonItems ComparisonItem[] @relation("ComparisonUser")
+  savedSearches   SavedSearch[]    @relation("SavedSearchUser")
   threads       MessageThread[]   @relation("ThreadBuyer")
   wishlists     Wishlist[]
   wallet        WalletAccount?
@@ -557,6 +590,7 @@ model Product {
   reviews        Review[]
   questions      ProductQuestion[]
   comparisonItems ComparisonItem[]
+  savedSearchHits SavedSearchHit[]
   wishlistItems  WishlistItem[]
   promotionScopes PromotionProductScope[]
   events         ProductEvent[]
@@ -3097,6 +3131,7 @@ enum NotificationKind {
   MESSAGE_NEW
   REVIEW_POSTED
   QUESTION_ANSWERED
+  SAVED_SEARCH_MATCH
   SECURITY_SIGN_IN
   GENERIC
 }

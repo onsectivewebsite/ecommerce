@@ -387,3 +387,11 @@ Legend: ⚪ planned · 🟡 in progress · 🟢 done
 - [x] ComparisonApi in api-client — 2026-05-22
 - [x] Frontend: buyer-web CompareButton on PDP + /compare side-by-side table + TopBar link — 2026-05-22
 - [x] `doc/phase-38-debug.md` — 2026-05-22
+
+## Phase 39 — Saved Searches ✅
+- [x] `doc/phase-39.md` spec — 2026-05-22
+- [x] Schema (SavedSearch + SavedSearchHit models + SAVED_SEARCH_MATCH NotificationKind + relations) — 2026-05-22
+- [x] SavedSearchesService (create/list/delete + runOnce/scan, Postgres ILIKE match, one summary notification per scan) + env-gated scheduler — 2026-05-22
+- [x] Endpoints: /saved-searches/* + /admin/saved-searches/scan; SavedSearchesApi — 2026-05-22
+- [x] Frontend: buyer-web SaveSearchButton on /search + /account/saved-searches + account tile — 2026-05-22
+- [x] `doc/phase-39-debug.md` — 2026-05-22
