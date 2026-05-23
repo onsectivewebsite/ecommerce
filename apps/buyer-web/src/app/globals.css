@@ -3,3 +3,52 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ---------------------------------------------------------------------------
+ * Buyer-web light-theme overrides. The shared @onsective/ui styles `@apply`
+ * `bg-ink-950` / `text-ink-100` etc.; because this app's tailwind config
+ * inverts the `ink-*` scale, those same class names now produce a light
+ * surface. The rules below tighten card styling, swap the primary CTA to a
+ * retail-style warm amber, and harden link contrast on white.
+ * ------------------------------------------------------------------------- */
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+  body {
+    @apply bg-ink-950 text-ink-100 antialiased;
+  }
+  a {
+    @apply text-accent-600 hover:text-accent-700 transition-colors;
+  }
+}
+
+@layer components {
+  .ons-card {
+    @apply rounded-xl bg-ink-950 border border-ink-700 shadow-elev1 p-6;
+    backdrop-filter: none;
+  }
+  .ons-input {
+    @apply w-full rounded-lg bg-ink-950 border border-ink-600 px-3.5 py-2.5
+           text-ink-50 placeholder-ink-500
+           focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500
+           transition;
+  }
+  .ons-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg font-medium
+           px-4 py-2.5 transition active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .ons-btn-primary {
+    @apply ons-btn bg-cta-500 hover:bg-cta-400 text-ink-50 shadow-elev1 font-semibold;
+  }
+  .ons-btn-secondary {
+    @apply ons-btn bg-ink-900 hover:bg-ink-800 text-ink-100 border border-ink-700;
+  }
+  .ons-btn-ghost {
+    @apply ons-btn bg-transparent hover:bg-ink-800 text-ink-200;
+  }
+  .ons-badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+}

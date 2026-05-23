@@ -21,10 +21,10 @@ export default async function HomePage() {
   return (
     <div>
       <section className="relative overflow-hidden border-b border-ink-800">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(60%_60%_at_20%_20%,rgba(37,99,255,0.18),transparent),radial-gradient(60%_60%_at_80%_80%,rgba(212,169,63,0.12),transparent)]" />
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(60%_60%_at_20%_20%,rgba(37,99,255,0.08),transparent),radial-gradient(60%_60%_at_80%_80%,rgba(245,158,11,0.10),transparent)] bg-ink-900" />
         <div className="container py-20 md:py-28 grid md:grid-cols-2 gap-10 items-center">
           <div className="animate-slide-up">
-            <p className="text-xs uppercase tracking-[0.2em] text-accent-300">Shop everything</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-accent-600">Shop everything</p>
             <h1 className="mt-3 font-display text-4xl md:text-6xl font-semibold tracking-tight text-ink-50">
               Millions of products. One place.
             </h1>

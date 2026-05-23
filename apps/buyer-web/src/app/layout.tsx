@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body className="min-h-screen bg-ink-950 text-ink-100 antialiased">
         <AuthProvider>
           <I18nProvider>
